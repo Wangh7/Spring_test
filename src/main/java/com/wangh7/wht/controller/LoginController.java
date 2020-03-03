@@ -30,7 +30,7 @@ public class LoginController {
             return new Result(200);
         }
     }
-
+    @CrossOrigin
     @GetMapping(value = "api/login/select")
     public List<User> list() throws Exception {
         return userService.list();

@@ -4,6 +4,7 @@ package com.wangh7.wht.pojo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.*;
 
@@ -22,6 +23,10 @@ public class Item {
     @Setter
     @Column(name = "user_id")
     int userId;
+    @Getter
+    @Setter
+    @Column(name = "image")
+    String image;
     @Getter
     @Setter
     @Column(name = "old_price")
