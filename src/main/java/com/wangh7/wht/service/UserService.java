@@ -4,6 +4,8 @@ import com.wangh7.wht.dao.UserDAO;
 import com.wangh7.wht.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Sort;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -25,5 +27,12 @@ public class UserService {
 
     public void add(User user){
         userDAO.save(user);
+    }
+
+    public List<User> list() { //获取所有用户
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        //return itemDAO.findAll(Sort.by(Sort.Direction.DESC, "item_id"));
+        return userDAO.findAll(sort);
+
     }
 }

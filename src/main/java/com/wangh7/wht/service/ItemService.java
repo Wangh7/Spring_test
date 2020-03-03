@@ -14,8 +14,11 @@ public class ItemService {
     @Autowired
     ItemDAO itemDAO;
 
-    public List<Item> list() { //获取所有图书
-        return itemDAO.findAll(Sort.by(Sort.Direction.DESC, "item_id"));
+    public List<Item> list() { //获取所有商品
+        Sort sort = Sort.by(Sort.Direction.DESC, "itemId");
+        //return itemDAO.findAll(Sort.by(Sort.Direction.DESC, "item_id"));
+        return itemDAO.findAll(sort);
+
     }
 
     public void addOrUpdate(Item item) {

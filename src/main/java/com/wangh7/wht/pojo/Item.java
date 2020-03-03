@@ -8,8 +8,8 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@Table(name="item")
-@JsonIgnoreProperties({"handler","hibernateLazyInitializer"}) //标注哪个属性不用转json
+@Table(name = "item")
+@JsonIgnoreProperties({"handler", "hibernateLazyInitializer"}) //标注哪个属性不用转json
 
 public class Item {
     @Getter
@@ -17,21 +17,21 @@ public class Item {
     @Id
     @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int item_id;
+    int itemId;
     @Getter
     @Setter
     @Column(name = "user_id")
-    int user_id;
+    int userId;
     @Getter
     @Setter
     @Column(name = "old_price")
-    int old_price;
+    int oldPrice;
     @Getter
     @Setter
-    @Column(name = "new-price")
-    int new_price;
+    @Column(name = "new_price")
+    int newPrice;
     @Getter
     @Setter
     @Column(name = "name")
-    String item_name;
+    String itemName;
 }
