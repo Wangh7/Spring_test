@@ -16,7 +16,6 @@ public class ItemService {
 
     public List<Item> list() { //获取所有商品
         Sort sort = Sort.by(Sort.Direction.DESC, "itemId");
-        //return itemDAO.findAll(Sort.by(Sort.Direction.DESC, "item_id"));
         return itemDAO.findAll(sort);
 
     }

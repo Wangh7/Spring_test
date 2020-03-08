@@ -2,7 +2,9 @@ package com.wangh7.wht.controller;
 
 
 import com.wangh7.wht.pojo.Item;
+import com.wangh7.wht.pojo.ItemType;
 import com.wangh7.wht.service.ItemService;
+import com.wangh7.wht.service.ItemTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +14,14 @@ import java.util.List;
 public class ItemController {
     @Autowired
     ItemService itemService;
+    @Autowired
+    ItemTypeService itemTypeService;
+
+    @CrossOrigin
+    @GetMapping("api/items/types")
+    public List<ItemType> listType() throws Exception {
+        return itemTypeService.list();
+    }
 
     @CrossOrigin
     @GetMapping("api/items")
