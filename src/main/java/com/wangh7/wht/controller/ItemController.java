@@ -18,12 +18,14 @@ public class ItemController {
     public List<Item> list() throws Exception {
         return itemService.list();
     }
+
     @CrossOrigin
     @PostMapping("api/items")
     public Item addOrUpdate(@RequestBody Item item) throws Exception {
         itemService.addOrUpdate(item);
         return item;
     }
+
     @CrossOrigin
     @PostMapping("api/delete")
     public void delete(@RequestBody Item item) throws Exception {

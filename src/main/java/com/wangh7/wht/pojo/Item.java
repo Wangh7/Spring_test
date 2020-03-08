@@ -4,7 +4,6 @@ package com.wangh7.wht.pojo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
 
 import javax.persistence.*;
 
@@ -30,13 +29,21 @@ public class Item {
     @Getter
     @Setter
     @Column(name = "old_price")
-    int oldPrice;
+    float oldPrice;
     @Getter
     @Setter
     @Column(name = "new_price")
-    int newPrice;
+    float newPrice;
     @Getter
     @Setter
     @Column(name = "name")
     String itemName;
+    @Getter
+    @Setter
+    @Column(name = "create_date")
+    String createDate;
+    @Getter
+    @Setter
+    @Column(name = "due_date")
+    String dueDate;
 }
