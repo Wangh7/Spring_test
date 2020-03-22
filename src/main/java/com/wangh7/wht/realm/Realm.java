@@ -14,7 +14,7 @@ import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
-public class Reaml extends AuthorizingRealm {
+public class Realm extends AuthorizingRealm {
     @Autowired
     private UserService userService;
 

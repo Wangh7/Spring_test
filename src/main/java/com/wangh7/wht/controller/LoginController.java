@@ -4,8 +4,12 @@ import com.wangh7.wht.pojo.User;
 import com.wangh7.wht.response.Result;
 import com.wangh7.wht.response.ResultFactory;
 import com.wangh7.wht.service.UserService;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.SimpleHash;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
@@ -19,20 +23,38 @@ public class LoginController {
     @Autowired
     UserService userService;
 
+//    @CrossOrigin
+//    @PostMapping(value = "api/login")
+//    @ResponseBody
+//    public Result login(@RequestBody User requestUser) {
+//        String username = requestUser.getUsername();
+//        username = HtmlUtils.htmlEscape(username);
+//
+//        User user = userService.get(username,requestUser.getPassword());
+//        if (null == user){
+//            return new Result(400,null,null);
+//        } else {
+//            return new Result(200,null,null);
+//        }
+//    }
+
     @CrossOrigin
     @PostMapping(value = "api/login")
     @ResponseBody
     public Result login(@RequestBody User requestUser) {
         String username = requestUser.getUsername();
-        username = HtmlUtils.htmlEscape(username);
+        Subject subject = SecurityUtils.getSubject();
 
-        User user = userService.get(username,requestUser.getPassword());
-        if (null == user){
-            return new Result(400,null,null);
-        } else {
-            return new Result(200,null,null);
+        UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(username,requestUser.getPassword());
+        try {
+            subject.login(usernamePasswordToken);
+            return ResultFactory.buildSuccessResult(usernamePasswordToken);
+        } catch (AuthenticationException e){
+            String message = "用户名或密码错误";
+            return ResultFactory.buildFailResult(message);
         }
     }
+
     @CrossOrigin
     @GetMapping(value = "api/login/select")
     public List<User> list() throws Exception {
