@@ -29,4 +29,7 @@ public class User {
 
     @Column(name = "salt")
     String salt;
+
+    @Column(name = "phone")
+    String phone;
 }
