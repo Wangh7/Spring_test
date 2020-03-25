@@ -56,6 +56,20 @@ public class LoginController {
     }
 
     @CrossOrigin
+    @GetMapping("api/logout")
+    public Result logout() {
+        Subject subject = SecurityUtils.getSubject();
+        subject.logout();
+        String message = "成功登出";
+        return ResultFactory.buildSuccessResult(message);
+    }
+
+    @ResponseBody
+    @GetMapping(value = "api/authentication")
+    public String authentication(){
+        return "身份认证成功";
+    }
+    @CrossOrigin
     @GetMapping(value = "api/login/select")
     public List<User> list() throws Exception {
         return userService.list();
