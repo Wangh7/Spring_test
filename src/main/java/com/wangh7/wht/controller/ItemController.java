@@ -37,7 +37,7 @@ public class ItemController {
     }
 
     @CrossOrigin
-    @PostMapping("api/delete")
+    @PostMapping("api/items/delete")
     public void delete(@RequestBody Item item) throws Exception {
         itemService.deleteById(item.getItemId());
     }
