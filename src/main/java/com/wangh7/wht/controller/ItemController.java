@@ -17,6 +17,12 @@ public class ItemController {
     @Autowired
     ItemTypeService itemTypeService;
 
+//    @CrossOrigin
+//    @GetMapping("api/items/test")
+//    public void test(String name) throws Exception {
+//        System.out.println(name);
+//    }
+
     @CrossOrigin
     @GetMapping("api/items/types")
     public List<ItemType> listType() throws Exception {
