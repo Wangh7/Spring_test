@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @Entity //实体类
@@ -32,4 +33,9 @@ public class User {
 
     @Column(name = "phone")
     String phone;
+
+    boolean enabled;
+
+    @Transient
+    List<Role> roles;
 }
