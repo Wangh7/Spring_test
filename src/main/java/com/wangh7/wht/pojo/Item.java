@@ -18,25 +18,19 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int itemId;
 
-    @Column(name = "user_id")
     int userId;
 
-    @Column(name = "image")
     String image;
 
-    @Column(name = "old_price")
     float oldPrice;
 
-    @Column(name = "new_price")
     float newPrice;
 
     @Column(name = "name")
     String itemName;
 
-    @Column(name = "create_date")
     String createDate;
 
-    @Column(name = "due_date")
     String dueDate;
 
     @JoinColumn(name = "type_id")
@@ -48,6 +42,5 @@ public class Item {
     //CascadType.ALL 则包含了所有级联操作
     private ItemType itemType;
 
-    @Column(name = "status")
     String status;
 }

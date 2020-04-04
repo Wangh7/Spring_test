@@ -53,6 +53,7 @@ public class ShiroConfiguration {
     public SecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(getRealm());
+        securityManager.setRememberMeManager(rememberMeManager());
         return securityManager;
     }
 

@@ -62,13 +62,15 @@ public class LoginController {
         String username = loginUser.getUsername();
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(username, loginUser.getPassword());
-        System.out.println("传参remember" + loginUser.isRemember());
+//        System.out.println("传参remember" + loginUser.isRemember());
         if(loginUser.isRemember()){
             usernamePasswordToken.setRememberMe(true);
         }
         try {
             subject.login(usernamePasswordToken);
-            return ResultFactory.buildSuccessResult(usernamePasswordToken);
+            loginUser.setNickname(userService.findByUsername(username).getNickname());
+            return ResultFactory.buildSuccessResult(loginUser);
+//            return ResultFactory.buildSuccessResult(usernamePasswordToken);
         } catch (AuthenticationException e) {
             String message = "用户名或密码错误";
             return ResultFactory.buildFailResult(message);

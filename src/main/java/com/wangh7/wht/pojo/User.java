@@ -19,19 +19,14 @@ public class User {
     @Column(name = "id")
     int id;
 
-    @Column(name = "username")
     String username;
 
-    @Column(name = "password")
     String password;
 
-    @Column(name = "usertype")
-    String usertype;
+    String nickname;
 
-    @Column(name = "salt")
     String salt;
 
-    @Column(name = "phone")
     String phone;
 
     boolean enabled;

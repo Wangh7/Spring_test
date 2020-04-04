@@ -7,4 +7,5 @@ public class LoginUser {
     String username;
     String password;
     boolean remember;
+    String nickname;
 }
