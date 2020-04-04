@@ -92,11 +92,6 @@ public class LoginController {
         return "身份认证成功";
     }
 
-    @CrossOrigin
-    @GetMapping(value = "api/login/select")
-    public List<User> list() throws Exception {
-        return userService.list();
-    }
 
     @CrossOrigin
     @PostMapping(value = "api/register")

@@ -25,10 +25,7 @@ public class RoleController {
 
     @Autowired
     UserService userService;
-    @GetMapping("/api/user")
-    public List<User> listUsers() throws Exception {
-        return userService.list();
-    }
+
     @GetMapping("/api/role")
     public Result listRoles() {
         return ResultFactory.buildSuccessResult(roleService.list());

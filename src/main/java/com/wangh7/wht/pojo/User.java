@@ -33,4 +33,14 @@ public class User {
 
     @Transient
     List<Role> roles;
+
+    public User(){}
+
+    public User(int id, String username, String nickname, String phone, boolean enabled) {
+        this.id = id;
+        this.username = username;
+        this.nickname = nickname;
+        this.phone = phone;
+        this.enabled = enabled;
+    }
 }
