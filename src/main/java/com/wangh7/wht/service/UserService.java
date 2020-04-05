@@ -3,6 +3,7 @@ package com.wangh7.wht.service;
 import com.wangh7.wht.dao.UserDAO;
 import com.wangh7.wht.pojo.Role;
 import com.wangh7.wht.pojo.User;
+import com.wangh7.wht.pojo.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort;
@@ -14,6 +15,8 @@ public class UserService {
     UserDAO userDAO;
     @Autowired
     RoleService roleService;
+    @Autowired
+    UserRoleService userRoleService;
 
     public boolean isExist(String username){
         User user = getByName(username);
@@ -68,7 +71,7 @@ public class UserService {
         userInDB.setPhone(user.getPhone());
         try {
             userDAO.save(userInDB);
-//            userRoleService
+            userRoleService.saveRoleChanges(userInDB.getId(), user.getRoles());
         } catch (IllegalArgumentException e) {
             return false;
         }
