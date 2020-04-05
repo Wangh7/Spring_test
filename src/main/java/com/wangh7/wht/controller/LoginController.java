@@ -4,6 +4,7 @@ import com.wangh7.wht.entity.LoginUser;
 import com.wangh7.wht.pojo.User;
 import com.wangh7.wht.response.Result;
 import com.wangh7.wht.response.ResultFactory;
+import com.wangh7.wht.service.PasswordService;
 import com.wangh7.wht.service.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -23,6 +24,8 @@ public class LoginController {
 
     @Autowired
     UserService userService;
+    @Autowired
+    PasswordService passwordService;
 
 //    @CrossOrigin
 //    @PostMapping(value = "api/login")
@@ -107,15 +110,8 @@ public class LoginController {
             String message = "用户名已被使用";
             return ResultFactory.buildFailResult(message);
         }
-
-        //生成slat
-        String salt = new SecureRandomNumberGenerator().nextBytes().toString();
-        //hash迭代次数
-        int times = 2;
-        String encodedPassword = new SimpleHash("md5", password, salt, times).toString();
+        user = passwordService.hashPass(user, password);
         //存储用户信息
-        user.setSalt(salt);
-        user.setPassword(encodedPassword);
         userService.add(user);
 
         return ResultFactory.buildSuccessResult(user);

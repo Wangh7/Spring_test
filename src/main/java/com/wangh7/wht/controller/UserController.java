@@ -5,11 +5,10 @@ import com.wangh7.wht.entity.ChangePass;
 import com.wangh7.wht.pojo.User;
 import com.wangh7.wht.response.Result;
 import com.wangh7.wht.response.ResultFactory;
+import com.wangh7.wht.service.PasswordService;
 import com.wangh7.wht.service.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.crypto.SecureRandomNumberGenerator;
-import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,8 @@ public class UserController {
     UserService userService;
     @Autowired
     SecurityManager securityManager;
+    @Autowired
+    PasswordService passwordService;
 
     @CrossOrigin
     @GetMapping(value = "/api/user")
@@ -58,18 +59,26 @@ public class UserController {
         } catch (Exception e){
             return ResultFactory.buildFailResult("修改失败，原密码错误");
         }
-        //生成slat
-        String salt = new SecureRandomNumberGenerator().nextBytes().toString();
-        //hash迭代次数
-        int times = 2;
-        String encodedPassword = new SimpleHash("md5", changePass.getNewPass(), salt, times).toString();
-        //存储用户信息
+
         User user = new User();
+        user = passwordService.hashPass(user, changePass.getNewPass());
         user.setUsername(subject.getPrincipal().toString());
-        user.setSalt(salt);
-        user.setPassword(encodedPassword);
         if(userService.changePass(user)){
             return ResultFactory.buildSuccessResult("密码修改成功");
+        } else {
+            return ResultFactory.buildFailResult("密码修改失败");
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/api/user/pass")
+    public Result resetPass(@RequestBody User user) {
+        User userInDB = userService.findByUsername(user.getUsername());
+        String newPass = userInDB.getPhone().substring(userInDB.getPhone().length()-6);
+        System.out.println(newPass);
+        User userPass = passwordService.hashPass(user, newPass);
+        if(userService.changePass(userPass)) {
+            return ResultFactory.buildSuccessResult("密码重置成功，新密码为手机号后六位");
         } else {
             return ResultFactory.buildFailResult("密码修改失败");
         }
