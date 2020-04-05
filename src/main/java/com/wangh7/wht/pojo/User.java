@@ -43,4 +43,10 @@ public class User {
         this.phone = phone;
         this.enabled = enabled;
     }
+    public User(int id, String username, String nickname, String phone) {
+        this.id = id;
+        this.username = username;
+        this.nickname = nickname;
+        this.phone = phone;
+    }
 }

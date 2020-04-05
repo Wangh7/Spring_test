@@ -49,6 +49,10 @@ public class UserService {
         return userDAO.findByUsername(username);
     }
 
+    public User singleUser(String username) {
+        return userDAO.singleUser(username);
+    }
+
     public void addOrUpdate(User user) {
         userDAO.save(user);
     }
@@ -65,6 +69,30 @@ public class UserService {
         try {
             userDAO.save(userInDB);
 //            userRoleService
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean changePass(User user) {
+        User userInDB = userDAO.findByUsername(user.getUsername());
+        userInDB.setPassword(user.getPassword());
+        userInDB.setSalt(user.getSalt());
+        try {
+            userDAO.save(userInDB);
+//            userRoleService
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean updateUserStatus(User user) {
+        User userInDB = userDAO.findByUsername(user.getUsername());
+        userInDB.setEnabled(user.isEnabled());
+        try {
+            userDAO.save(userInDB);
         } catch (IllegalArgumentException e) {
             return false;
         }
