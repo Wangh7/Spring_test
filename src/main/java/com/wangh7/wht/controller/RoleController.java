@@ -38,20 +38,20 @@ public class RoleController {
         return ResultFactory.buildSuccessResult(message);
     }
 
-    @PutMapping("/api/role")
-    public Result editRole(@RequestBody Role requestRole) {
-        roleService.addOrUpdate(requestRole);
-        rolePermissionService.savePermChanges(requestRole.getId(), requestRole.getPermissions());
-        String message = "修改角色信息成功";
-        return ResultFactory.buildSuccessResult(message);
-    }
+//    @PutMapping("/api/role")
+//    public Result editRole(@RequestBody Role requestRole) {
+//        roleService.addOrUpdate(requestRole);
+//        rolePermissionService.savePermChanges(requestRole.getId(), requestRole.getPermissions());
+//        String message = "修改角色信息成功";
+//        return ResultFactory.buildSuccessResult(message);
+//    }
 
     @PostMapping("/api/role")
-    public Result addRole(@RequestBody Role requestRole) {
+    public Result editRole(@RequestBody Role requestRole) {
         if (roleService.editRole(requestRole)) {
-            return ResultFactory.buildSuccessResult("修改用户成功");
+            return ResultFactory.buildSuccessResult("修改角色成功");
         } else {
-            return ResultFactory.buildFailResult("参数错误，修改失败");
+            return ResultFactory.buildFailResult("参数错误，修改角色失败");
         }
     }
 

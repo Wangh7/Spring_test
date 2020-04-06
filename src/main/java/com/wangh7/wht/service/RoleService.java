@@ -61,10 +61,13 @@ public class RoleService {
         return roleDAO.save(roleInDB);
     }
 
-    public boolean editRole(@RequestBody Role requestRole) {
+    public boolean editRole(Role role) {
+        Role roleInDB = roleDAO.findById(role.getId());
+        roleInDB.setName(role.getName());
+        roleInDB.setNameZh(role.getNameZh());
         try {
-            roleDAO.save(requestRole);
-            rolePermissionService.savePermChanges(requestRole.getId(), requestRole.getPermissions());
+            roleDAO.save(roleInDB);
+            rolePermissionService.savePermChanges(roleInDB.getId(), role.getPermissions());
         } catch (IllegalArgumentException e) {
             return false;
         }
