@@ -89,12 +89,6 @@ public class LoginController {
         return ResultFactory.buildSuccessResult(message);
     }
 
-    @ResponseBody
-    @GetMapping(value = "api/authentication")
-    public String authentication() {
-        return "身份认证成功";
-    }
-
 
     @CrossOrigin
     @PostMapping(value = "api/register")

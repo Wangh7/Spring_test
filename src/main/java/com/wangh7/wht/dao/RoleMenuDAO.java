@@ -8,4 +8,5 @@ import java.util.List;
 public interface RoleMenuDAO extends JpaRepository<RoleMenu,Integer> {
     List<RoleMenu> findAllByRoleId(int roleId);
     void deleteAllByRoleId(int roleId);
+    RoleMenu findByRoleIdAndMenuId(int roleId, int menuId);
 }

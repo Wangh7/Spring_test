@@ -24,7 +24,7 @@ public class MenuService {
     @Autowired
     RoleMenuService roleMenuService;
 
-    public List<Menu> getAllByParentId(int parentId){
+    public List<Menu> getAllByParentId(int parentId) {
         return menuDAO.findAllByParentId(parentId);
     }
 
@@ -33,14 +33,14 @@ public class MenuService {
         User user = userService.findByUsername(username);
         List<UserRole> userRoleList = userRoleService.listAllByUserId(user.getId());
         List<Menu> menus = new ArrayList<>();
-        for(UserRole userRole : userRoleList) {
+        for (UserRole userRole : userRoleList) {
             List<RoleMenu> roleMenus = roleMenuService.findAllByRoleId(userRole.getRoleId());
-            for(RoleMenu roleMenu : roleMenus) {
+            for (RoleMenu roleMenu : roleMenus) {
                 //防止多角色菜单重复
                 Menu menu = menuDAO.findById(roleMenu.getMenuId());
                 boolean isExist = false;
                 for (Menu menu1 : menus) {
-                    if(menu1.getId() == menu.getId()){
+                    if (menu1.getId() == menu.getId()) {
                         isExist = true;
                     }
                 }
@@ -53,10 +53,21 @@ public class MenuService {
         return menus;
     }
 
-    public List<Menu> getMenusByRoleId(int role_id){
+    public boolean menuPerm(String s) {
+        String url = "/" + s.split("/")[1];
+        List<Menu> menus = getMenusByCurrentUser();
+        for (Menu menu : menus){
+            if(menu.getPath().equals(url)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<Menu> getMenusByRoleId(int role_id) {
         List<Menu> menus = new ArrayList<>();
         List<RoleMenu> roleMenus = roleMenuService.findAllByRoleId(role_id);
-        for(RoleMenu roleMenu : roleMenus) {
+        for (RoleMenu roleMenu : roleMenus) {
             menus.add(menuDAO.findById(roleMenu.getMenuId()));
         }
         handleMenus(menus);
@@ -65,10 +76,15 @@ public class MenuService {
 
     // 剔除子项，仅保留父项
     public void handleMenus(List<Menu> menus) {
-        for(Menu menu : menus) {
+        for (Menu menu : menus) {
             List<Menu> children = getAllByParentId(menu.getId());
             menu.setChildren(children);
         }
         menus.removeIf(menu -> menu.getParentId() != 0);
     }
+
+    public List<Menu> list() {
+        return menuDAO.findAll();
+    }
+
 }

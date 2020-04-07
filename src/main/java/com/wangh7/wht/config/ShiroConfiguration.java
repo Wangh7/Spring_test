@@ -41,8 +41,9 @@ public class ShiroConfiguration {
         filterChainDefinitionMap.put("/api/login","anon");
         filterChainDefinitionMap.put("/api/logout","anon");
         filterChainDefinitionMap.put("/api/register","anon");
+        filterChainDefinitionMap.put("/api/authentication", "anon");
+
         filterChainDefinitionMap.put("/api/**","url");
-//        filterChainDefinitionMap.put("/api/authentication", "authc");
         // 启用过滤器
         shiroFilterFactoryBean.setFilters(customizedFilter);
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);

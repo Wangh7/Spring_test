@@ -60,12 +60,4 @@ public class RoleController {
         return ResultFactory.buildSuccessResult(permissionService.list());
     }
 
-    @PutMapping("/api/role/menu")
-    public Result updateRoleMenu(@RequestParam int role_id, @RequestBody LinkedHashMap menusIds) {
-        if(roleMenuService.updateRoleMenu(role_id,menusIds)) {
-            return ResultFactory.buildSuccessResult("更新成功");
-        } else {
-            return ResultFactory.buildFailResult("参数错误，更新失败");
-        }
-    }
 }

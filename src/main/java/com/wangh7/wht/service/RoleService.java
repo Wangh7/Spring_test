@@ -23,6 +23,8 @@ public class RoleService {
     RolePermissionService rolePermissionService;
     @Autowired
     MenuService menuService;
+    @Autowired
+    RoleMenuService roleMenuService;
 
     public Role findById(int id){
         return roleDAO.findById(id);
@@ -68,6 +70,7 @@ public class RoleService {
         try {
             roleDAO.save(roleInDB);
             rolePermissionService.savePermChanges(roleInDB.getId(), role.getPermissions());
+            roleMenuService.saveMenuChanges(roleInDB.getId(), role.getMenus());
         } catch (IllegalArgumentException e) {
             return false;
         }

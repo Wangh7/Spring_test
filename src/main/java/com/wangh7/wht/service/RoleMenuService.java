@@ -1,6 +1,7 @@
 package com.wangh7.wht.service;
 
 import com.wangh7.wht.dao.RoleMenuDAO;
+import com.wangh7.wht.pojo.Menu;
 import com.wangh7.wht.pojo.RoleMenu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,17 +16,21 @@ public class RoleMenuService {
     @Autowired
     RoleMenuDAO roleMenuDAO;
 
-    public List<RoleMenu> findAllByRoleId(int role_id){
+    public List<RoleMenu> findAllByRoleId(int role_id) {
         return roleMenuDAO.findAllByRoleId(role_id);
+    }
+
+    public RoleMenu findByRoleIdAndMenuId(int role_id, int menu_id) {
+        return roleMenuDAO.findByRoleIdAndMenuId(role_id, menu_id);
     }
 
     @Modifying
     @Transactional
-    public void deleteAllByRoleId(int role_id){
+    public void deleteAllByRoleId(int role_id) {
         roleMenuDAO.deleteAllByRoleId(role_id);
     }
 
-    public void save(RoleMenu roleMenu){
+    public void save(RoleMenu roleMenu) {
         roleMenuDAO.save(roleMenu);
     }
 
@@ -46,5 +51,16 @@ public class RoleMenuService {
             return false;
         }
         return true;
+    }
+
+    @Transactional
+    public void saveMenuChanges(int menu_id, List<Menu> menus) {
+        roleMenuDAO.deleteAllByRoleId(menu_id);
+        for (Menu menu : menus) {
+            RoleMenu roleMenu = new RoleMenu();
+            roleMenu.setRoleId(menu_id);
+            roleMenu.setMenuId(menu.getId());
+            roleMenuDAO.save(roleMenu);
+        }
     }
 }
