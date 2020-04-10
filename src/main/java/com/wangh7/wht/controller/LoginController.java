@@ -72,6 +72,7 @@ public class LoginController {
         try {
             subject.login(usernamePasswordToken);
             loginUser.setNickname(userService.findByUsername(username).getNickname());
+            loginUser.setUserId(userService.findByUsername(username).getId());
             return ResultFactory.buildSuccessResult(loginUser);
 //            return ResultFactory.buildSuccessResult(usernamePasswordToken);
         } catch (AuthenticationException e) {

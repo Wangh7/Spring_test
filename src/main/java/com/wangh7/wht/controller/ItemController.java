@@ -2,9 +2,15 @@ package com.wangh7.wht.controller;
 
 
 import com.wangh7.wht.pojo.Item;
+import com.wangh7.wht.pojo.ItemSell;
 import com.wangh7.wht.pojo.ItemType;
+import com.wangh7.wht.response.Result;
+import com.wangh7.wht.response.ResultFactory;
+import com.wangh7.wht.service.ItemSellService;
 import com.wangh7.wht.service.ItemService;
 import com.wangh7.wht.service.ItemTypeService;
+import com.wangh7.wht.service.UserService;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +22,10 @@ public class ItemController {
     ItemService itemService;
     @Autowired
     ItemTypeService itemTypeService;
+    @Autowired
+    ItemSellService itemSellService;
+    @Autowired
+    UserService userService;
 
 //    @CrossOrigin
 //    @GetMapping("api/items/test")
@@ -48,4 +58,26 @@ public class ItemController {
         itemService.deleteById(item.getItemId());
     }
 
+    @CrossOrigin
+    @GetMapping(value = "/api/items/sell")
+    public List<ItemSell> userGetItemSellList(){
+        int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
+        return itemSellService.userList(user_id);
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/api/items/sell")
+    public Result userAddItemSell(@RequestBody ItemSell itemSell) {
+        if(itemSellService.addOrUpdate(itemSell)) {
+            return ResultFactory.buildSuccessResult("发布成功");
+        } else {
+            return ResultFactory.buildFailResult("发布失败");
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/api/items/sell/delete")
+    public void deleteItemSell(@RequestBody ItemSell itemSell) {
+        itemSellService.deleteById(itemSell.getItemId());
+    }
 }
