@@ -14,13 +14,21 @@ public class ItemTypeService {
     ItemTypeDAO itemTypeDAO;
 
     public List<ItemType> list() {
-        Sort sort = Sort.by(Sort.Direction.DESC, "typeId");
-        return itemTypeDAO.findAll(sort);
+        return itemTypeDAO.findAll();
     }
 
     public String getImage(int typeId) {
         ItemType itemType = itemTypeDAO.findById(typeId).orElse(null);
         String s = "/static/" + itemType.getTypeCode() + ".png";
         return s;
+    }
+
+    public boolean setItemDiscount(ItemType itemType) {
+        try {
+            itemTypeDAO.save(itemType);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
     }
 }

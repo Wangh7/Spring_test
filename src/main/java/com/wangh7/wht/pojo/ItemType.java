@@ -3,8 +3,6 @@ package com.wangh7.wht.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -21,4 +19,6 @@ public class ItemType {
     String typeName;
 
     String typeCode;
+
+    float typeDiscount;
 }
