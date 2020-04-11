@@ -20,5 +20,6 @@ public class ItemType {
 
     String typeCode;
 
-    float typeDiscount;
+    float typeDiscountBuy;
+    float typeDiscountSell;
 }
