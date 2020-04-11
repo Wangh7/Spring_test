@@ -6,6 +6,7 @@ import com.wangh7.wht.pojo.ItemSell;
 import com.wangh7.wht.response.Result;
 import com.wangh7.wht.response.ResultFactory;
 import com.wangh7.wht.service.ItemSellService;
+import com.wangh7.wht.service.PasswordService;
 import com.wangh7.wht.service.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ public class CheckController {
     ItemSellService itemSellService;
     @Autowired
     UserService userService;
+    @Autowired
+    PasswordService passwordService;
 
     @CrossOrigin
     @GetMapping(value = "/api/check")
@@ -35,7 +38,7 @@ public class CheckController {
 
     @CrossOrigin
     @PostMapping(value = "/api/check/success")
-    public Result checkSuccess(@RequestBody ItemCheck itemCheck) {
+    public Result checkSuccess(@RequestBody ItemCheck itemCheck) throws Exception{
         if(itemSellService.checkSuccess(itemCheck)) {
             return ResultFactory.buildSuccessResult("审查成功");
         } else {
@@ -50,5 +53,11 @@ public class CheckController {
         } else {
             return ResultFactory.buildFailResult("打回失败");
         }
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/api/check/pass")
+    public String getDecodePass(@RequestParam String pass) throws Exception{
+        return passwordService.DES(pass,"decode");
     }
 }

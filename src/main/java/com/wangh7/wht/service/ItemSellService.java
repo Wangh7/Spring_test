@@ -18,6 +18,8 @@ public class ItemSellService {
     ItemSellDAO itemSellDAO;
     @Autowired
     ItemStockDAO itemStockDAO;
+    @Autowired
+    PasswordService passwordService;
 
     public List<ItemSell> list() { //获取所有商品
         Sort sort = Sort.by(Sort.Direction.DESC, "itemId");
@@ -35,8 +37,9 @@ public class ItemSellService {
 
     public boolean addOrUpdate(ItemSell itemSell) {
         try {
+            itemSell.setCardPass(passwordService.DES(itemSell.getCardPass(),"encode"));
             itemSellDAO.save(itemSell);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             return false;
         }
         return true;
@@ -51,7 +54,7 @@ public class ItemSellService {
         return itemSellDAO.findAllByUserId(user_id);
     }
 
-    public boolean checkSuccess(ItemCheck itemCheck){
+    public boolean checkSuccess(ItemCheck itemCheck) throws Exception{
         ItemSell itemSellInDB = itemSellDAO.findByItemId(itemCheck.getItemId());
         ItemStock itemStock = new ItemStock();
         itemSellInDB.setStatus("T");
@@ -61,7 +64,7 @@ public class ItemSellService {
         itemStock.setItemType(itemSellInDB.getItemType());
         itemStock.setManagerId(itemSellInDB.getManagerId());
         itemStock.setCardNum(itemSellInDB.getCardNum());
-        itemStock.setCardPass(itemCheck.getNewPassword());
+        itemStock.setCardPass(passwordService.DES(itemCheck.getNewPassword(),"encode"));
         itemStock.setStatus("N");
         itemStock.setCreateTime(itemCheck.getCheckTime());
         try {
