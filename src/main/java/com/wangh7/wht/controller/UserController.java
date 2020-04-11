@@ -1,11 +1,14 @@
 package com.wangh7.wht.controller;
 
 
+import com.wangh7.wht.entity.ChangeMoney;
 import com.wangh7.wht.entity.ChangePass;
+import com.wangh7.wht.pojo.Price;
 import com.wangh7.wht.pojo.User;
 import com.wangh7.wht.response.Result;
 import com.wangh7.wht.response.ResultFactory;
 import com.wangh7.wht.service.PasswordService;
+import com.wangh7.wht.service.PriceService;
 import com.wangh7.wht.service.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -25,6 +28,8 @@ public class UserController {
     SecurityManager securityManager;
     @Autowired
     PasswordService passwordService;
+    @Autowired
+    PriceService priceService;
 
     @CrossOrigin
     @GetMapping(value = "/api/user")
@@ -49,6 +54,36 @@ public class UserController {
         }
     }
 
+    @CrossOrigin
+    @GetMapping(value = "/api/user/single/price")
+    public Price singlePrice() {
+        Subject subject = SecurityUtils.getSubject();
+        return priceService.single(userService.findByUsername(subject.getPrincipal().toString()).getId());
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/api/user/single/price")
+    public Result plusOrMinus(@RequestBody ChangeMoney changeMoney){
+        Subject subject = SecurityUtils.getSubject();
+        switch (changeMoney.getStatus()) {
+            case "+": {
+                if(priceService.plus(userService.findByUsername(subject.getPrincipal().toString()).getId(),changeMoney.getMoney())){
+                    return ResultFactory.buildSuccessResult("success");
+                } else {
+                    return ResultFactory.buildFailResult("更新失败");
+                }
+            }
+            case "-": {
+                if(priceService.minus(userService.findByUsername(subject.getPrincipal().toString()).getId(),changeMoney.getMoney())){
+                    return ResultFactory.buildSuccessResult("success");
+                } else {
+                    return ResultFactory.buildFailResult("更新失败");
+                }
+            }
+            default:
+                return ResultFactory.buildFailResult("更新失败");
+        }
+    }
     @CrossOrigin
     @PostMapping(value = "/api/user/single/pass")
     public Result changePass(@RequestBody ChangePass changePass) {
