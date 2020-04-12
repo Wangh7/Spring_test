@@ -3,6 +3,7 @@ package com.wangh7.wht.service;
 
 import com.wangh7.wht.dao.ItemSellDAO;
 import com.wangh7.wht.dao.ItemStockDAO;
+import com.wangh7.wht.dao.ItemTypeDAO;
 import com.wangh7.wht.entity.ItemCheck;
 import com.wangh7.wht.pojo.ItemSell;
 import com.wangh7.wht.pojo.ItemStock;
@@ -23,9 +24,13 @@ public class ItemSellService {
     @Autowired
     ItemStockDAO itemStockDAO;
     @Autowired
+    ItemTypeDAO itemTypeDAO;
+    @Autowired
     PasswordService passwordService;
     @Autowired
     ItemTimelineService itemTimelineService;
+    @Autowired
+    PriceService priceService;
 
     public List<ItemSell> list() { //获取所有商品
         Sort sort = Sort.by(Sort.Direction.DESC, "itemId");
@@ -96,6 +101,7 @@ public class ItemSellService {
             itemStockDAO.save(itemStock);
             itemSellDAO.save(itemSellInDB);
             itemTimelineService.addOrUpdate(itemTimeline);
+            priceService.plus(itemSellInDB.getUserId(),itemCheck.getItemId(),itemCheck.getCheckTime(),itemCheck.getPrice(),itemTypeDAO.findByTypeId(itemSellInDB.getItemType().getTypeId()).getTypeDiscountBuy());
         } catch (IllegalArgumentException e) {
             return false;
         }
