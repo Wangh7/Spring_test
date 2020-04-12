@@ -6,9 +6,13 @@ import com.wangh7.wht.dao.ItemStockDAO;
 import com.wangh7.wht.entity.ItemCheck;
 import com.wangh7.wht.pojo.ItemSell;
 import com.wangh7.wht.pojo.ItemStock;
+import com.wangh7.wht.pojo.ItemTimeline;
+import org.joda.money.CurrencyUnit;
+import org.joda.money.Money;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,6 +24,8 @@ public class ItemSellService {
     ItemStockDAO itemStockDAO;
     @Autowired
     PasswordService passwordService;
+    @Autowired
+    ItemTimelineService itemTimelineService;
 
     public List<ItemSell> list() { //获取所有商品
         Sort sort = Sort.by(Sort.Direction.DESC, "itemId");
@@ -37,8 +43,18 @@ public class ItemSellService {
 
     public boolean addOrUpdate(ItemSell itemSell) {
         try {
+            ItemTimeline itemTimeline = new ItemTimeline();
+            itemTimeline.setTimestamp(itemSell.getCreateTime());
+            itemTimeline.setStatus("S");
             itemSell.setCardPass(passwordService.DES(itemSell.getCardPass(),"encode"));
             itemSellDAO.save(itemSell);
+            itemTimeline.setItemId(itemSell.getItemId());
+            if(itemTimelineService.isExist(itemSell.getItemId())) {
+                itemTimeline.setContent("用户修改商品信息");
+            } else {
+                itemTimeline.setContent("用户创建商品信息");
+            }
+            itemTimelineService.addOrUpdate(itemTimeline);
         } catch (Exception e) {
             return false;
         }
@@ -46,6 +62,7 @@ public class ItemSellService {
 
     }
 
+    @Transactional
     public void deleteById(int id) {
         itemSellDAO.deleteById(id);
     }
@@ -57,6 +74,7 @@ public class ItemSellService {
     public boolean checkSuccess(ItemCheck itemCheck) throws Exception{
         ItemSell itemSellInDB = itemSellDAO.findByItemId(itemCheck.getItemId());
         ItemStock itemStock = new ItemStock();
+        ItemTimeline itemTimeline = new ItemTimeline();
         itemSellInDB.setStatus("T");
         itemSellInDB.setCheckTime(itemCheck.getCheckTime());
         itemSellInDB.setManagerId(itemCheck.getManagerId());
@@ -67,9 +85,17 @@ public class ItemSellService {
         itemStock.setCardPass(passwordService.DES(itemCheck.getNewPassword(),"encode"));
         itemStock.setStatus("N");
         itemStock.setCreateTime(itemCheck.getCheckTime());
+        itemStock.setPrice(Money.of(CurrencyUnit.of("CNY"),itemCheck.getPrice()));
+        itemTimeline.setItemId(itemCheck.getItemId());
+        itemTimeline.setStatus("S");
+        itemTimeline.setTimestamp(itemCheck.getCheckTime());
+        itemTimeline.setContent("系统审核通过");
+        itemTimeline.setType("success");
+        itemTimeline.setIcon("el-icon-check");
         try {
             itemStockDAO.save(itemStock);
             itemSellDAO.save(itemSellInDB);
+            itemTimelineService.addOrUpdate(itemTimeline);
         } catch (IllegalArgumentException e) {
             return false;
         }
@@ -78,11 +104,19 @@ public class ItemSellService {
 
     public boolean checkFail(ItemCheck itemCheck) {
         ItemSell itemSellInDB = itemSellDAO.findByItemId(itemCheck.getItemId());
+        ItemTimeline itemTimeline = new ItemTimeline();
         itemSellInDB.setStatus("F");
         itemSellInDB.setCheckTime(itemCheck.getCheckTime());
         itemSellInDB.setManagerId(itemCheck.getManagerId());
+        itemTimeline.setItemId(itemCheck.getItemId());
+        itemTimeline.setStatus("S");
+        itemTimeline.setTimestamp(itemCheck.getCheckTime());
+        itemTimeline.setContent("系统审核未通过");
+        itemTimeline.setType("danger");
+        itemTimeline.setIcon("el-icon-close");
         try {
             itemSellDAO.save(itemSellInDB);
+            itemTimelineService.addOrUpdate(itemTimeline);
         } catch (IllegalArgumentException e) {
             return false;
         }

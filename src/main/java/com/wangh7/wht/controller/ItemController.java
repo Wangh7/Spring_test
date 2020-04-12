@@ -3,13 +3,11 @@ package com.wangh7.wht.controller;
 
 import com.wangh7.wht.pojo.Item;
 import com.wangh7.wht.pojo.ItemSell;
+import com.wangh7.wht.pojo.ItemTimeline;
 import com.wangh7.wht.pojo.ItemType;
 import com.wangh7.wht.response.Result;
 import com.wangh7.wht.response.ResultFactory;
-import com.wangh7.wht.service.ItemSellService;
-import com.wangh7.wht.service.ItemService;
-import com.wangh7.wht.service.ItemTypeService;
-import com.wangh7.wht.service.UserService;
+import com.wangh7.wht.service.*;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +24,8 @@ public class ItemController {
     ItemSellService itemSellService;
     @Autowired
     UserService userService;
+    @Autowired
+    ItemTimelineService itemTimelineService;
 
 //    @CrossOrigin
 //    @GetMapping("api/items/test")
@@ -78,6 +78,13 @@ public class ItemController {
     @CrossOrigin
     @PostMapping(value = "/api/items/sell/delete")
     public void deleteItemSell(@RequestBody ItemSell itemSell) {
+        itemTimelineService.deleteAll(itemSell.getItemId());
         itemSellService.deleteById(itemSell.getItemId());
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/api/items/timeline")
+    public List<ItemTimeline> getItemTimeline(@RequestParam int item_id,@RequestParam String status) {
+        return itemTimelineService.getItemTimeline(item_id,status);
     }
 }

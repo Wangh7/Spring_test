@@ -3,6 +3,8 @@ package com.wangh7.wht.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import org.hibernate.annotations.Type;
+import org.joda.money.Money;
 
 import javax.persistence.*;
 
@@ -19,6 +21,9 @@ public class ItemStock {
     String cardPass;
     String createTime;
     String status;
+    @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyAmount",
+            parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})
+    Money price;
 
     @JoinColumn(name = "type_id")
     @ManyToOne

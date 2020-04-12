@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Data
 @Entity
@@ -19,7 +20,7 @@ public class ItemSell {
     int managerId;
     String cardNum;
     String cardPass;
-    float price;
+    BigDecimal price;
     String createTime;
     String dueTime;
     String status;
