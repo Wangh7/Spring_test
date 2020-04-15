@@ -1,10 +1,7 @@
 package com.wangh7.wht.controller;
 
 
-import com.wangh7.wht.pojo.Item;
-import com.wangh7.wht.pojo.ItemSell;
-import com.wangh7.wht.pojo.ItemTimeline;
-import com.wangh7.wht.pojo.ItemType;
+import com.wangh7.wht.pojo.*;
 import com.wangh7.wht.response.Result;
 import com.wangh7.wht.response.ResultFactory;
 import com.wangh7.wht.service.*;
@@ -18,6 +15,8 @@ import java.util.List;
 public class ItemController {
     @Autowired
     ItemService itemService;
+    @Autowired
+    ItemStockService itemStockService;
     @Autowired
     ItemTypeService itemTypeService;
     @Autowired
@@ -34,6 +33,15 @@ public class ItemController {
 //    }
 
     @CrossOrigin
+    @GetMapping(value = "/api/items/{typeCode}")
+    public List<ItemStock> listByTypeCode(@PathVariable("typeCode") String typeCode) throws Exception {
+        if (typeCode.equals("all")) {
+            return list();
+        } else {
+            return itemStockService.listByTypeCode(typeCode);
+        }
+    }
+    @CrossOrigin
     @GetMapping("api/items/types")
     public List<ItemType> listType() throws Exception {
         return itemTypeService.list();
@@ -41,8 +49,8 @@ public class ItemController {
 
     @CrossOrigin
     @GetMapping("api/items")
-    public List<Item> list() throws Exception {
-        return itemService.list();
+    public List<ItemStock> list() throws Exception {
+        return itemStockService.list();
     }
 
     @CrossOrigin
