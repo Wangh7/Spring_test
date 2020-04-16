@@ -1,6 +1,7 @@
 package com.wangh7.wht.controller;
 
 
+import com.wangh7.wht.entity.ItemIds;
 import com.wangh7.wht.pojo.*;
 import com.wangh7.wht.response.Result;
 import com.wangh7.wht.response.ResultFactory;
@@ -22,6 +23,8 @@ public class ItemController {
     @Autowired
     ItemSellService itemSellService;
     @Autowired
+    ItemBuyService itemBuyService;
+    @Autowired
     UserService userService;
     @Autowired
     ItemTimelineService itemTimelineService;
@@ -41,6 +44,7 @@ public class ItemController {
             return itemStockService.listByTypeCode(typeCode);
         }
     }
+
     @CrossOrigin
     @GetMapping("api/items/types")
     public List<ItemType> listType() throws Exception {
@@ -68,7 +72,7 @@ public class ItemController {
 
     @CrossOrigin
     @GetMapping(value = "/api/items/sell")
-    public List<ItemSell> userGetItemSellList(){
+    public List<ItemSell> userGetItemSellList() {
         int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
         return itemSellService.userList(user_id);
     }
@@ -76,7 +80,7 @@ public class ItemController {
     @CrossOrigin
     @PostMapping(value = "/api/items/sell")
     public Result userAddItemSell(@RequestBody ItemSell itemSell) {
-        if(itemSellService.addOrUpdate(itemSell)) {
+        if (itemSellService.addOrUpdate(itemSell)) {
             return ResultFactory.buildSuccessResult("发布成功");
         } else {
             return ResultFactory.buildFailResult("发布失败");
@@ -91,8 +95,34 @@ public class ItemController {
     }
 
     @CrossOrigin
+    @GetMapping(value = "/api/items/buy")
+    public List<ItemBuy> userGetItemBuyList() {
+        int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
+        return itemBuyService.userBuyList(user_id);
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/api/items/bought")
+    public List<ItemBuy> userGetItemBoughtList() {
+        int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
+        return itemBuyService.userBoughtList(user_id);
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/api/items/buy")
+    public Result userItemBuy(@RequestBody ItemIds itemIds) {
+        int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
+        List<Integer> item_ids = itemIds.getItem_ids();
+        if (itemBuyService.userBuyItem(user_id, item_ids)) {
+            return ResultFactory.buildSuccessResult("success");
+        } else {
+            return ResultFactory.buildFailResult("购买失败");
+        }
+    }
+
+    @CrossOrigin
     @GetMapping(value = "/api/items/timeline")
-    public List<ItemTimeline> getItemTimeline(@RequestParam int item_id,@RequestParam String status) {
-        return itemTimelineService.getItemTimeline(item_id,status);
+    public List<ItemTimeline> getItemTimeline(@RequestParam int item_id, @RequestParam String status) {
+        return itemTimelineService.getItemTimeline(item_id, status);
     }
 }
