@@ -13,11 +13,11 @@ public class ItemStockService {
     ItemStockDAO itemStockDAO;
 
     public List<ItemStock> list() {
-        return itemStockDAO.findAll();
+        return itemStockDAO.findAllByStatus("N");
     }
 
     public List<ItemStock> listByTypeCode(String typeCode) {
-        return itemStockDAO.findAllByItemType_TypeCode(typeCode);
+        return itemStockDAO.findAllByItemType_TypeCodeAndStatus(typeCode,"N");
     }
     public boolean addOrUpdate(ItemStock itemStock) {
         try {

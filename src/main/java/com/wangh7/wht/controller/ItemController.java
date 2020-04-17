@@ -48,6 +48,16 @@ public class ItemController {
     }
 
     @CrossOrigin
+    @GetMapping(value = "/api/items/car")
+    public Result addShopCar(@RequestParam int item_id) {
+        int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
+        if(itemBuyService.addShopCar(user_id,item_id)){
+            return ResultFactory.buildSuccessResult("success");
+        } else {
+            return ResultFactory.buildFailResult("商品已在购物车中");
+        }
+    }
+    @CrossOrigin
     @GetMapping("api/items/types")
     public List<ItemType> listType() throws Exception {
         return itemTypeService.list();

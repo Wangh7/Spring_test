@@ -90,6 +90,7 @@ public class ItemSellService {
         itemStock.setCardPass(passwordService.DES(itemCheck.getNewPassword(),"encode"));
         itemStock.setStatus("N");
         itemStock.setCreateTime(itemCheck.getCheckTime());
+        itemStock.setDueTime(itemSellInDB.getDueTime());
         itemStock.setPrice(Money.of(CurrencyUnit.of("CNY"),itemCheck.getPrice()));
         itemTimeline.setItemId(itemCheck.getItemId());
         itemTimeline.setStatus("S");

@@ -34,7 +34,22 @@ public class ItemBuyService {
     }
 
     public List<ItemBuy> userBoughtList(int user_id) {
-        return itemBuyDAO.findAllByUserIdAndStatus(user_id, "Y");
+        return itemBuyDAO.findAllByUserIdAndStatusOrStatus(user_id,"Y","C");
+    }
+
+    public boolean addShopCar(int user_id,int item_id) {
+        if(itemBuyDAO.findByUserIdAndItemStock_ItemId(user_id,item_id) == null) {
+            ItemBuy itemBuy = new ItemBuy();
+            ItemStock itemStock = new ItemStock();
+            itemStock.setItemId(item_id);
+            itemBuy.setUserId(user_id);
+            itemBuy.setItemStock(itemStock);
+            itemBuy.setCreateTime("2020-04-04 00:22:23");
+            itemBuy.setStatus("N");
+            itemBuyDAO.save(itemBuy);
+            return true;
+        }
+        return false;
     }
 
     public void addOrUpdate(ItemBuy itemBuy) {
