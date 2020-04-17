@@ -25,6 +25,8 @@ public class ItemController {
     @Autowired
     ItemBuyService itemBuyService;
     @Autowired
+    PasswordService passwordService;
+    @Autowired
     UserService userService;
     @Autowired
     ItemTimelineService itemTimelineService;
@@ -113,10 +115,16 @@ public class ItemController {
     public Result userItemBuy(@RequestBody ItemIds itemIds) {
         int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
         List<Integer> item_ids = itemIds.getItem_ids();
-        if (itemBuyService.userBuyItem(user_id, item_ids)) {
-            return ResultFactory.buildSuccessResult("success");
-        } else {
-            return ResultFactory.buildFailResult("购买失败");
+        String date = "2020-03-04 00:08:12";
+        switch (itemBuyService.userBuyItem(user_id, date, item_ids)) {
+            case 3:
+                return ResultFactory.buildFailResult("余额不足");
+            case 0:
+                return ResultFactory.buildSuccessResult("success");
+            case 1:
+                return ResultFactory.buildFailResult("购买失败");
+            default:
+                return ResultFactory.buildFailResult("未知错误");
         }
     }
 
@@ -124,5 +132,12 @@ public class ItemController {
     @GetMapping(value = "/api/items/timeline")
     public List<ItemTimeline> getItemTimeline(@RequestParam int item_id, @RequestParam String status) {
         return itemTimelineService.getItemTimeline(item_id, status);
+    }
+    @CrossOrigin
+    @GetMapping(value = "/api/items/pass")
+    public String getDecodePass(@RequestParam String pass,@RequestParam int item_id) throws Exception{
+        int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
+        itemBuyService.userBuyItemPass(user_id,item_id);
+        return passwordService.DES(pass,"decode");
     }
 }

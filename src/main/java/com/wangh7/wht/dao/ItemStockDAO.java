@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ItemStockDAO extends JpaRepository<ItemStock, Integer> {
     List<ItemStock> findAllByItemType_TypeCode(String typeCode);
+    ItemStock findByItemId(int item_id);
 }
