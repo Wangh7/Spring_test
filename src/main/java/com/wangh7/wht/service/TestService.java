@@ -7,15 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
 public class TestService {
     @Autowired
     TestDAO testDAO;
-    public List<Test> list() { //获取所有图书
-        Sort sort = Sort.by(Sort.Direction.DESC, "us123er_id");
-        return testDAO.findAll(sort);
-
+    public void list() {
+        Date date = new Date();
+        date.setTime(testDAO.findById(1).getBig());
+        System.out.println(date);
     }
 }

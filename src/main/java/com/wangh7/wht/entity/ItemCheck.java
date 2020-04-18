@@ -9,7 +9,7 @@ public class ItemCheck {
     int itemId;
     int managerId;
     String newPassword;
-    String checkTime;
+    long checkTime;
 
     BigDecimal price;
 }

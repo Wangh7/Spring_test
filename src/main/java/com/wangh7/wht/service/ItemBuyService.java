@@ -6,6 +6,7 @@ import com.wangh7.wht.dao.ItemTimelineDAO;
 import com.wangh7.wht.pojo.ItemBuy;
 import com.wangh7.wht.pojo.ItemStock;
 import com.wangh7.wht.pojo.ItemTimeline;
+import com.wangh7.wht.utils.DateTimeUtils;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +40,13 @@ public class ItemBuyService {
 
     public boolean addShopCar(int user_id,int item_id) {
         if(itemBuyDAO.findByUserIdAndItemStock_ItemId(user_id,item_id) == null) {
+            DateTimeUtils dateTimeUtils = new DateTimeUtils();
             ItemBuy itemBuy = new ItemBuy();
             ItemStock itemStock = new ItemStock();
             itemStock.setItemId(item_id);
             itemBuy.setUserId(user_id);
             itemBuy.setItemStock(itemStock);
-            itemBuy.setCreateTime("2020-04-04 00:22:23");
+            itemBuy.setCreateTime(dateTimeUtils.getTimeLong()); //时间
             itemBuy.setStatus("N");
             itemBuyDAO.save(itemBuy);
             return true;
@@ -62,11 +64,12 @@ public class ItemBuyService {
 
     public void userBuyItemPass(int user_id, int item_id) {
         ItemBuy itemBuyInDB = itemBuyDAO.findByUserIdAndItemStock_ItemId(user_id,item_id);
+        DateTimeUtils dateTimeUtils = new DateTimeUtils();
         if(itemBuyInDB.getStatus().equals("Y")){
             ItemTimeline itemTimeline = new ItemTimeline();
             itemTimeline.setItemId(item_id);
             itemTimeline.setStatus("B");
-            itemTimeline.setTimestamp("2020-04-05 09:22:31");
+            itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
             itemTimeline.setContent("用户查看密码");
             itemTimeline.setType("primary");
             itemTimeline.setIcon("el-icon-more");
@@ -76,9 +79,10 @@ public class ItemBuyService {
         itemBuyDAO.save(itemBuyInDB);
     }
 
-    public int userBuyItem(int user_id, String date, List<Integer> item_ids) {
+    public int userBuyItem(int user_id, List<Integer> item_ids) {
         Money balance = priceService.single(user_id).getMoney();
         Money price = Money.of(CurrencyUnit.of("CNY"),0);
+        DateTimeUtils dateTimeUtils = new DateTimeUtils();
         for (int item_id : item_ids) {
             ItemBuy itemBuyInDB = itemBuyDAO.findByUserIdAndItemStock_ItemId(user_id, item_id);
             price = price.plus(itemBuyInDB.getItemStock().getPrice().multipliedBy(itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell(), RoundingMode.HALF_UP));
@@ -96,10 +100,11 @@ public class ItemBuyService {
 
                     itemTimeline.setItemId(item_id);
                     itemTimeline.setStatus("B");
-                    itemTimeline.setTimestamp(date);
+                    itemTimeline.setTimestamp(dateTimeUtils.getTimeLong()); //时间
                     itemTimeline.setContent("用户提交订单");
 
                     itemBuyInDB.setStatus("Y");
+                    itemBuyInDB.setFinishTime(dateTimeUtils.getTimeLong()); //时间
                     itemBuyInDB.setPrice(itemBuyInDB.getItemStock().getPrice().multipliedBy(itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell(), RoundingMode.HALF_UP).getAmount());
 
                     itemBuyDAO.save(itemBuyInDB);
@@ -107,7 +112,7 @@ public class ItemBuyService {
                     itemTimelineDAO.save(itemTimeline);
 
                     //扣款
-                    priceService.minus(user_id,item_id,date,itemBuyInDB.getItemStock().getPrice().getAmount(),itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell());
+                    priceService.minus(user_id,item_id,itemBuyInDB.getItemStock().getPrice().getAmount(),itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell());
 
                 }
             } catch (IllegalArgumentException e) {

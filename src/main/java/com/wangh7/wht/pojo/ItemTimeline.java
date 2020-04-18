@@ -15,7 +15,7 @@ public class ItemTimeline {
     int id;
 
     int itemId;
-    String timestamp;
+    long timestamp;
     String content;
     String type;
     String icon;

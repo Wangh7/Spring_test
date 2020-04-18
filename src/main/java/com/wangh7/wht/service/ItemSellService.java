@@ -8,6 +8,7 @@ import com.wangh7.wht.entity.ItemCheck;
 import com.wangh7.wht.pojo.ItemSell;
 import com.wangh7.wht.pojo.ItemStock;
 import com.wangh7.wht.pojo.ItemTimeline;
+import com.wangh7.wht.utils.DateTimeUtils;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +49,12 @@ public class ItemSellService {
 
     public boolean addOrUpdate(ItemSell itemSell) {
         try {
+            DateTimeUtils dateTimeUtils = new DateTimeUtils();
+            if(itemSell.getCreateTime() == 0) {
+                itemSell.setCreateTime(dateTimeUtils.getTimeLong());//时间
+            }
             ItemTimeline itemTimeline = new ItemTimeline();
-            itemTimeline.setTimestamp(itemSell.getCreateTime());
+            itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
             itemTimeline.setStatus("S");
             itemSell.setCardPass(passwordService.DES(itemSell.getCardPass(),"encode"));
             itemSellDAO.save(itemSell);
@@ -79,9 +84,10 @@ public class ItemSellService {
     public boolean checkSuccess(ItemCheck itemCheck) throws Exception{
         ItemSell itemSellInDB = itemSellDAO.findByItemId(itemCheck.getItemId());
         ItemStock itemStock = new ItemStock();
+        DateTimeUtils dateTimeUtils = new DateTimeUtils();
         ItemTimeline itemTimeline = new ItemTimeline();
         itemSellInDB.setStatus("T");
-        itemSellInDB.setCheckTime(itemCheck.getCheckTime());
+        itemSellInDB.setCheckTime(dateTimeUtils.getTimeLong()); //时间
         itemSellInDB.setManagerId(itemCheck.getManagerId());
         itemStock.setItemId(itemSellInDB.getItemId());
         itemStock.setItemType(itemSellInDB.getItemType());
@@ -89,12 +95,12 @@ public class ItemSellService {
         itemStock.setCardNum(itemSellInDB.getCardNum());
         itemStock.setCardPass(passwordService.DES(itemCheck.getNewPassword(),"encode"));
         itemStock.setStatus("N");
-        itemStock.setCreateTime(itemCheck.getCheckTime());
+        itemStock.setCreateTime(dateTimeUtils.getTimeLong()); //时间
         itemStock.setDueTime(itemSellInDB.getDueTime());
         itemStock.setPrice(Money.of(CurrencyUnit.of("CNY"),itemCheck.getPrice()));
         itemTimeline.setItemId(itemCheck.getItemId());
         itemTimeline.setStatus("S");
-        itemTimeline.setTimestamp(itemCheck.getCheckTime());
+        itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
         itemTimeline.setContent("系统审核通过");
         itemTimeline.setType("success");
         itemTimeline.setIcon("el-icon-check");
@@ -102,7 +108,7 @@ public class ItemSellService {
             itemStockDAO.save(itemStock);
             itemSellDAO.save(itemSellInDB);
             itemTimelineService.addOrUpdate(itemTimeline);
-            priceService.plus(itemSellInDB.getUserId(),itemCheck.getItemId(),itemCheck.getCheckTime(),itemCheck.getPrice(),itemTypeDAO.findByTypeId(itemSellInDB.getItemType().getTypeId()).getTypeDiscountBuy());
+            priceService.plus(itemSellInDB.getUserId(),itemCheck.getItemId(),itemCheck.getPrice(),itemTypeDAO.findByTypeId(itemSellInDB.getItemType().getTypeId()).getTypeDiscountBuy());
         } catch (IllegalArgumentException e) {
             return false;
         }
@@ -110,14 +116,15 @@ public class ItemSellService {
     }
 
     public boolean checkFail(ItemCheck itemCheck) {
+        DateTimeUtils dateTimeUtils = new DateTimeUtils();
         ItemSell itemSellInDB = itemSellDAO.findByItemId(itemCheck.getItemId());
         ItemTimeline itemTimeline = new ItemTimeline();
         itemSellInDB.setStatus("F");
-        itemSellInDB.setCheckTime(itemCheck.getCheckTime());
+        itemSellInDB.setCheckTime(dateTimeUtils.getTimeLong());
         itemSellInDB.setManagerId(itemCheck.getManagerId());
         itemTimeline.setItemId(itemCheck.getItemId());
         itemTimeline.setStatus("S");
-        itemTimeline.setTimestamp(itemCheck.getCheckTime());
+        itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
         itemTimeline.setContent("系统审核未通过");
         itemTimeline.setType("danger");
         itemTimeline.setIcon("el-icon-close");

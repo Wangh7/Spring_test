@@ -125,8 +125,7 @@ public class ItemController {
     public Result userItemBuy(@RequestBody ItemIds itemIds) {
         int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
         List<Integer> item_ids = itemIds.getItem_ids();
-        String date = "2020-03-04 00:08:12";
-        switch (itemBuyService.userBuyItem(user_id, date, item_ids)) {
+        switch (itemBuyService.userBuyItem(user_id, item_ids)) {
             case 3:
                 return ResultFactory.buildFailResult("余额不足");
             case 0:
@@ -136,6 +135,12 @@ public class ItemController {
             default:
                 return ResultFactory.buildFailResult("未知错误");
         }
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/api/items/buy/delete")
+    public void deleteItemBuy(@RequestBody ItemBuy itemBuy) {
+        itemBuyService.deleteById(itemBuy.getId());
     }
 
     @CrossOrigin

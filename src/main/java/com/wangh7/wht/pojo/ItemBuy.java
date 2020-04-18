@@ -23,6 +23,6 @@ public class ItemBuy {
 
     String status;
     BigDecimal price;
-    String createTime;
-    String finishTime;
+    long createTime;
+    long finishTime;
 }

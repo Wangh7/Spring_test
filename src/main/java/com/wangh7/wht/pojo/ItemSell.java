@@ -21,10 +21,10 @@ public class ItemSell {
     String cardNum;
     String cardPass;
     BigDecimal price;
-    String createTime;
-    String dueTime;
+    long createTime;
+    long dueTime;
     String status;
-    String checkTime;
+    long checkTime;
 
     @JoinColumn(name = "type_id")
     @ManyToOne

@@ -15,11 +15,9 @@ import java.util.List;
 public class TestController {
     @Autowired
     TestService testService;
-    @Autowired
-    PasswordService passwordService;
     @CrossOrigin
     @GetMapping(value = "api/test")
     public void list() throws Exception {
-
+        testService.list();
     }
 }

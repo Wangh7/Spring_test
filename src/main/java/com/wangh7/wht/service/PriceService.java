@@ -3,6 +3,7 @@ package com.wangh7.wht.service;
 import com.wangh7.wht.dao.PriceDAO;
 import com.wangh7.wht.pojo.ItemTimeline;
 import com.wangh7.wht.pojo.Price;
+import com.wangh7.wht.utils.DateTimeUtils;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +50,9 @@ public class PriceService {
         return true;
     }
 
-    public boolean plus(int user_id, int item_id, String date, BigDecimal money, double discount) {
+    public boolean plus(int user_id, int item_id, BigDecimal money, double discount) {
         try {
+            DateTimeUtils dateTimeUtils = new DateTimeUtils();
             ItemTimeline itemTimeline = new ItemTimeline();
             Money m = Money.of(CurrencyUnit.of("CNY"),money).multipliedBy(discount, RoundingMode.HALF_UP);
             Price price = single(user_id);
@@ -58,7 +60,7 @@ public class PriceService {
             priceDAO.save(price);
             itemTimeline.setItemId(item_id);
             itemTimeline.setStatus("S");
-            itemTimeline.setTimestamp(date);
+            itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
             itemTimeline.setContent("资金已到账，收入：" + m + "元");
             itemTimeline.setType("warning");
             itemTimelineService.addOrUpdate(itemTimeline);
@@ -68,8 +70,9 @@ public class PriceService {
         return true;
     }
 
-    public boolean minus(int user_id, int item_id, String date, BigDecimal money, double discount) {
+    public boolean minus(int user_id, int item_id, BigDecimal money, double discount) {
         try {
+            DateTimeUtils dateTimeUtils = new DateTimeUtils();
             ItemTimeline itemTimeline = new ItemTimeline();
             Money m = Money.of(CurrencyUnit.of("CNY"),money).multipliedBy(discount,RoundingMode.HALF_UP);
             Price price = single(user_id);
@@ -77,7 +80,7 @@ public class PriceService {
             priceDAO.save(price);
             itemTimeline.setItemId(item_id);
             itemTimeline.setStatus("B");
-            itemTimeline.setTimestamp(date);
+            itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
             itemTimeline.setContent("订单支付完成，支出："+ m +"元");
             itemTimeline.setType("warning");
             itemTimelineService.addOrUpdate(itemTimeline);

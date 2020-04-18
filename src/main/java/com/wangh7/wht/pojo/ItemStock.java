@@ -19,8 +19,8 @@ public class ItemStock {
     int managerId;
     String cardNum;
     String cardPass;
-    String createTime;
-    String dueTime;
+    long createTime;
+    long dueTime;
     String status;
     @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyAmount",
             parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})
