@@ -85,8 +85,9 @@ public class ItemBuyService {
         DateTimeUtils dateTimeUtils = new DateTimeUtils();
         for (int item_id : item_ids) {
             ItemBuy itemBuyInDB = itemBuyDAO.findByUserIdAndItemStock_ItemId(user_id, item_id);
+            ItemStock itemStock = itemStockDAO.findByItemId(item_id);
             price = price.plus(itemBuyInDB.getItemStock().getPrice().multipliedBy(itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell(), RoundingMode.HALF_UP));
-            if(itemBuyInDB.getStatus().equals("Y")) {
+            if(itemStock.getStatus().equals("Y")) {
                 return 2; //已被卖出
             }
         }
