@@ -13,10 +13,13 @@ import javax.persistence.*;
 @JsonIgnoreProperties({"handler", "hibernateLazyInitializer"})
 public class Price {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    int id;
+
     int userId;
 
     @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyAmount",
     parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})
     Money money;
+
 }

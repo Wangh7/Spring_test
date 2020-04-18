@@ -128,10 +128,12 @@ public class ItemController {
         switch (itemBuyService.userBuyItem(user_id, item_ids)) {
             case 3:
                 return ResultFactory.buildFailResult("余额不足");
-            case 0:
-                return ResultFactory.buildSuccessResult("success");
             case 1:
+                return ResultFactory.buildSuccessResult("success");
+            case 0:
                 return ResultFactory.buildFailResult("购买失败");
+            case 2:
+                return ResultFactory.buildFailResult("所选商品部分已被卖出，请重新选择");
             default:
                 return ResultFactory.buildFailResult("未知错误");
         }

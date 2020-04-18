@@ -1,21 +1,25 @@
 package com.wangh7.wht.controller;
 
 import com.wangh7.wht.entity.LoginUser;
+import com.wangh7.wht.pojo.Price;
+import com.wangh7.wht.pojo.Role;
 import com.wangh7.wht.pojo.User;
 import com.wangh7.wht.response.Result;
 import com.wangh7.wht.response.ResultFactory;
-import com.wangh7.wht.service.PasswordService;
-import com.wangh7.wht.service.UserService;
+import com.wangh7.wht.service.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.subject.Subject;
+import org.joda.money.CurrencyUnit;
+import org.joda.money.Money;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -26,6 +30,12 @@ public class LoginController {
     UserService userService;
     @Autowired
     PasswordService passwordService;
+    @Autowired
+    RoleService roleService;
+    @Autowired
+    UserRoleService userRoleService;
+    @Autowired
+    PriceService priceService;
 
 //    @CrossOrigin
 //    @PostMapping(value = "api/login")
@@ -106,9 +116,21 @@ public class LoginController {
             return ResultFactory.buildFailResult(message);
         }
         user = passwordService.hashPass(user, password);
+        user.setEnabled(true);
         //存储用户信息
         userService.add(user);
-
+        //分配角色
+        Role role;
+        List<Role> roles = new ArrayList<>();
+        role = roleService.findById(3); //普通用户
+        roles.add(role);
+        userRoleService.saveRoleChanges(user.getId(),roles);
+        //创建余额
+        Money money = Money.of(CurrencyUnit.of("CNY"),0);
+        Price price = new Price();
+        price.setUserId(user.getId());
+        price.setMoney(money);
+        priceService.addOrUpdate(price);
         return ResultFactory.buildSuccessResult(user);
     }
 }

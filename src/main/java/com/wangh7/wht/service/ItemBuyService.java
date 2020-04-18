@@ -86,6 +86,9 @@ public class ItemBuyService {
         for (int item_id : item_ids) {
             ItemBuy itemBuyInDB = itemBuyDAO.findByUserIdAndItemStock_ItemId(user_id, item_id);
             price = price.plus(itemBuyInDB.getItemStock().getPrice().multipliedBy(itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell(), RoundingMode.HALF_UP));
+            if(itemBuyInDB.getStatus().equals("Y")) {
+                return 2; //已被卖出
+            }
         }
         if (balance.isLessThan(price)){
             return 3; //余额不足
