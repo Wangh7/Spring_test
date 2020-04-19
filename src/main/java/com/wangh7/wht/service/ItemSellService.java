@@ -108,7 +108,7 @@ public class ItemSellService {
             itemStockDAO.save(itemStock);
             itemSellDAO.save(itemSellInDB);
             itemTimelineService.addOrUpdate(itemTimeline);
-            priceService.plus(itemSellInDB.getUserId(),itemCheck.getItemId(),itemCheck.getPrice(),itemTypeDAO.findByTypeId(itemSellInDB.getItemType().getTypeId()).getTypeDiscountBuy());
+            priceService.plus(itemSellInDB.getUserId(),itemCheck.getItemId(),itemCheck.getPrice(),itemSellInDB.getDiscountItem(),itemSellInDB.getDiscountTime());
         } catch (IllegalArgumentException e) {
             return false;
         }

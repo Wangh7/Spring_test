@@ -15,7 +15,7 @@ public class DiscountTime {
     int id;
 
     String timeName;
-    String timeCode;
+    int timeLeftday;
     double discountSell;
     double discountBuy;
     boolean enabled;

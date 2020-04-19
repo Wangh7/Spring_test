@@ -30,6 +30,8 @@ public class ItemController {
     UserService userService;
     @Autowired
     ItemTimelineService itemTimelineService;
+    @Autowired
+    DiscountTimeService discountTimeService;
 
 //    @CrossOrigin
 //    @GetMapping("api/items/test")
@@ -156,5 +158,10 @@ public class ItemController {
         int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
         itemBuyService.userBuyItemPass(user_id,item_id);
         return passwordService.DES(pass,"decode");
+    }
+    @CrossOrigin
+    @GetMapping(value = "/api/items/discount/time")
+    public List<DiscountTime> discountTimeList() {
+        return discountTimeService.list();
     }
 }

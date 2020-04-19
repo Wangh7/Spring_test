@@ -30,4 +30,6 @@ public class ItemSell {
     @ManyToOne
     private ItemType itemType;
 
+    double discountItem;
+    double discountTime;
 }
