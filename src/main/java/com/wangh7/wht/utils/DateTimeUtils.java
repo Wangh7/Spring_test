@@ -16,4 +16,8 @@ public class DateTimeUtils {
         return simpleDateFormat.format(date);
     }
 
+    public double getDiffDate(long time) {
+        Date date = new Date();
+        return Math.floor((time - date.getTime()) / 86400000);
+    }
 }

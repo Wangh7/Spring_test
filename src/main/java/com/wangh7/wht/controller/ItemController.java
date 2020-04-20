@@ -136,6 +136,8 @@ public class ItemController {
                 return ResultFactory.buildFailResult("购买失败");
             case 2:
                 return ResultFactory.buildFailResult("所选商品部分已被卖出，请重新选择");
+            case 4:
+                return ResultFactory.buildFailResult("所选商品部分已过期，请重新选择");
             default:
                 return ResultFactory.buildFailResult("未知错误");
         }

@@ -3,6 +3,7 @@ package com.wangh7.wht.service;
 import com.wangh7.wht.dao.ItemBuyDAO;
 import com.wangh7.wht.dao.ItemStockDAO;
 import com.wangh7.wht.dao.ItemTimelineDAO;
+import com.wangh7.wht.pojo.DiscountTime;
 import com.wangh7.wht.pojo.ItemBuy;
 import com.wangh7.wht.pojo.ItemStock;
 import com.wangh7.wht.pojo.ItemTimeline;
@@ -25,6 +26,8 @@ public class ItemBuyService {
     ItemTimelineDAO itemTimelineDAO;
     @Autowired
     PriceService priceService;
+    @Autowired
+    DiscountTimeService discountTimeService;
 
     public List<ItemBuy> list() {
         return itemBuyDAO.findAll();
@@ -90,11 +93,15 @@ public class ItemBuyService {
             if(itemStock.getStatus().equals("Y")) {
                 return 2; //已被卖出
             }
+            if(dateTimeUtils.getDiffDate(itemStock.getDueTime()) <= 0) {
+                return 4; //已过期
+            }
         }
         if (balance.isLessThan(price)){
             return 3; //余额不足
         } else {
             try {
+                List<DiscountTime> discountTimes = discountTimeService.list();
                 for (int item_id : item_ids) {
                     ItemBuy itemBuyInDB = itemBuyDAO.findByUserIdAndItemStock_ItemId(user_id, item_id);
                     ItemStock itemStockInDB = itemStockDAO.findByItemId(item_id);
@@ -107,16 +114,25 @@ public class ItemBuyService {
                     itemTimeline.setTimestamp(dateTimeUtils.getTimeLong()); //时间
                     itemTimeline.setContent("用户提交订单");
 
+                    //获取时间折扣
+                    double discount =1;
+                    for (DiscountTime discountTime : discountTimes) {
+                        if (dateTimeUtils.getDiffDate(itemStockInDB.getDueTime()) < discountTime.getTimeLeftday()) {
+                            discount = discountTime.getDiscountSell();
+                            break;
+                        }
+                    }
+
                     itemBuyInDB.setStatus("Y");
                     itemBuyInDB.setFinishTime(dateTimeUtils.getTimeLong()); //时间
-                    itemBuyInDB.setPrice(itemBuyInDB.getItemStock().getPrice().multipliedBy(itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell(), RoundingMode.HALF_UP).getAmount());
+                    itemBuyInDB.setPrice(itemBuyInDB.getItemStock().getPrice().multipliedBy(itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell() * discount, RoundingMode.HALF_UP).getAmount());//实付款
 
                     itemBuyDAO.save(itemBuyInDB);
                     itemStockDAO.save(itemStockInDB);
                     itemTimelineDAO.save(itemTimeline);
 
                     //扣款
-                    priceService.minus(user_id,item_id,itemBuyInDB.getItemStock().getPrice().getAmount(),itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell());
+                    priceService.minus(user_id,item_id,itemBuyInDB.getItemStock().getPrice().getAmount(),itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell(), discount);
 
                 }
             } catch (IllegalArgumentException e) {
