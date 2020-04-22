@@ -1,6 +1,7 @@
 package com.wangh7.wht.service;
 
 import com.wangh7.wht.dao.ItemStockDAO;
+import com.wangh7.wht.entity.HotSell;
 import com.wangh7.wht.pojo.ItemStock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,5 +36,9 @@ public class ItemStockService {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public List<HotSell> getHotSell() {
+        return itemStockDAO.getHotSell();
     }
 }

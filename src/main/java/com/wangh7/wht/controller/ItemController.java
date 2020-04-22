@@ -1,6 +1,7 @@
 package com.wangh7.wht.controller;
 
 
+import com.wangh7.wht.entity.HotSell;
 import com.wangh7.wht.entity.ItemIds;
 import com.wangh7.wht.pojo.*;
 import com.wangh7.wht.response.Result;
@@ -165,5 +166,11 @@ public class ItemController {
     @GetMapping(value = "/api/items/discount/time")
     public List<DiscountTime> discountTimeList() {
         return discountTimeService.list();
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/api/items/hot")
+    public List<HotSell> getHotSell() {
+        return itemStockService.getHotSell();
     }
 }
