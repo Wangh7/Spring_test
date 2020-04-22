@@ -16,6 +16,10 @@ public class DiscountTimeService {
         return discountTimeDAO.findAll();
     }
 
+    public List<DiscountTime> adslist() {
+        return discountTimeDAO.findAllByEnabled(true);
+    }
+
     public boolean discountTimeStatus(DiscountTime discountTime) {
         try {
             DiscountTime discountTimeInDB = discountTimeDAO.findById(discountTime.getId());

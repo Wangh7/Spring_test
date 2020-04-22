@@ -41,4 +41,8 @@ public class ItemStockService {
     public List<HotSell> getHotSell() {
         return itemStockDAO.getHotSell();
     }
+
+    public List<HotSell> getRecentItem() {
+        return itemStockDAO.getRecentItem();
+    }
 }

@@ -169,8 +169,18 @@ public class ItemController {
     }
 
     @CrossOrigin
+    @GetMapping(value = "/api/items/discount/ads")
+    public List<DiscountTime> discountAdsList() {
+        return discountTimeService.adslist();
+    }
+    @CrossOrigin
     @GetMapping(value = "/api/items/hot")
     public List<HotSell> getHotSell() {
         return itemStockService.getHotSell();
+    }
+    @CrossOrigin
+    @GetMapping(value = "/api/items/recent")
+    public List<HotSell> getRencentItem() {
+        return itemStockService.getRecentItem();
     }
 }

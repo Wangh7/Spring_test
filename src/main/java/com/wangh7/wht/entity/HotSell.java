@@ -16,4 +16,11 @@ public class HotSell {
         this.typeName = typeName;
         this.typeCode = typeCode;
     }
+
+    public HotSell(int typeId,String typeName,String typeCode){
+        super();
+        this.typeId = typeId;
+        this.typeName = typeName;
+        this.typeCode =typeCode;
+    }
 }
