@@ -12,4 +12,5 @@ public interface ItemSellDAO extends JpaRepository<ItemSell, Integer> {
     List<ItemSell> findAllByStatus(String status);
 
     ItemSell findByItemId(int item_id);
+    List<ItemSell> findAllByUserIdAndStatus(int user_id,String status);
 }

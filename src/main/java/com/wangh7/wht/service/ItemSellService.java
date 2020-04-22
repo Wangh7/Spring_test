@@ -5,6 +5,7 @@ import com.wangh7.wht.dao.ItemSellDAO;
 import com.wangh7.wht.dao.ItemStockDAO;
 import com.wangh7.wht.dao.ItemTypeDAO;
 import com.wangh7.wht.entity.ItemCheck;
+import com.wangh7.wht.entity.ItemIndex;
 import com.wangh7.wht.pojo.ItemSell;
 import com.wangh7.wht.pojo.ItemStock;
 import com.wangh7.wht.pojo.ItemTimeline;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -50,16 +52,16 @@ public class ItemSellService {
     public boolean addOrUpdate(ItemSell itemSell) {
         try {
             DateTimeUtils dateTimeUtils = new DateTimeUtils();
-            if(itemSell.getCreateTime() == 0) {
+            if (itemSell.getCreateTime() == 0) {
                 itemSell.setCreateTime(dateTimeUtils.getTimeLong());//时间
             }
             ItemTimeline itemTimeline = new ItemTimeline();
             itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
             itemTimeline.setStatus("S");
-            itemSell.setCardPass(passwordService.DES(itemSell.getCardPass(),"encode"));
+            itemSell.setCardPass(passwordService.DES(itemSell.getCardPass(), "encode"));
             itemSellDAO.save(itemSell);
             itemTimeline.setItemId(itemSell.getItemId());
-            if(itemTimelineService.isExist(itemSell.getItemId())) {
+            if (itemTimelineService.isExist(itemSell.getItemId())) {
                 itemTimeline.setContent("用户修改商品信息");
             } else {
                 itemTimeline.setContent("用户创建商品信息");
@@ -77,11 +79,27 @@ public class ItemSellService {
         itemSellDAO.deleteById(id);
     }
 
-    public List<ItemSell> userList(int user_id){
+    public List<ItemSell> userList(int user_id) {
         return itemSellDAO.findAllByUserId(user_id);
     }
 
-    public boolean checkSuccess(ItemCheck itemCheck) throws Exception{
+    public ItemIndex getIndex(int user_id) {
+        double totalPrice = 0;
+        ItemIndex itemIndex = new ItemIndex();
+        List<ItemSell> itemSells = itemSellDAO.findAllByUserIdAndStatus(user_id, "T");
+        for (ItemSell itemSell : itemSells) {
+            Money m = Money.of(CurrencyUnit.of("CNY"),itemSell.getPrice());
+            m = m.multipliedBy(itemSell.getDiscountItem() * itemSell.getDiscountItem(),RoundingMode.HALF_UP);
+            totalPrice += m.getAmount().doubleValue();
+        }
+        itemIndex.setTotalItem(itemSells.size());
+        itemIndex.setTotalPrice(totalPrice);
+        itemIndex.setTotalSellN(itemSellDAO.findAllByUserIdAndStatus(user_id, "N").size());
+        itemIndex.setTotalSellF(itemSellDAO.findAllByUserIdAndStatus(user_id, "F").size());
+        return itemIndex;
+    }
+
+    public boolean checkSuccess(ItemCheck itemCheck) throws Exception {
         ItemSell itemSellInDB = itemSellDAO.findByItemId(itemCheck.getItemId());
         ItemStock itemStock = new ItemStock();
         DateTimeUtils dateTimeUtils = new DateTimeUtils();
@@ -93,11 +111,11 @@ public class ItemSellService {
         itemStock.setItemType(itemSellInDB.getItemType());
         itemStock.setManagerId(itemSellInDB.getManagerId());
         itemStock.setCardNum(itemSellInDB.getCardNum());
-        itemStock.setCardPass(passwordService.DES(itemCheck.getNewPassword(),"encode"));
+        itemStock.setCardPass(passwordService.DES(itemCheck.getNewPassword(), "encode"));
         itemStock.setStatus("N");
         itemStock.setCreateTime(dateTimeUtils.getTimeLong()); //时间
         itemStock.setDueTime(itemSellInDB.getDueTime());
-        itemStock.setPrice(Money.of(CurrencyUnit.of("CNY"),itemCheck.getPrice()));
+        itemStock.setPrice(Money.of(CurrencyUnit.of("CNY"), itemCheck.getPrice()));
         itemTimeline.setItemId(itemCheck.getItemId());
         itemTimeline.setStatus("S");
         itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
@@ -108,7 +126,7 @@ public class ItemSellService {
             itemStockDAO.save(itemStock);
             itemSellDAO.save(itemSellInDB);
             itemTimelineService.addOrUpdate(itemTimeline);
-            priceService.plus(itemSellInDB.getUserId(),itemCheck.getItemId(),itemCheck.getPrice(),itemSellInDB.getDiscountItem(),itemSellInDB.getDiscountTime());
+            priceService.plus(itemSellInDB.getUserId(), itemCheck.getItemId(), itemCheck.getPrice(), itemSellInDB.getDiscountItem(), itemSellInDB.getDiscountTime());
         } catch (IllegalArgumentException e) {
             return false;
         }

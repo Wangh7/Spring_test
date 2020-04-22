@@ -3,6 +3,7 @@ package com.wangh7.wht.controller;
 
 import com.wangh7.wht.entity.HotSell;
 import com.wangh7.wht.entity.ItemIds;
+import com.wangh7.wht.entity.ItemIndex;
 import com.wangh7.wht.pojo.*;
 import com.wangh7.wht.response.Result;
 import com.wangh7.wht.response.ResultFactory;
@@ -85,6 +86,19 @@ public class ItemController {
         itemService.deleteById(item.getItemId());
     }
 
+    @CrossOrigin
+    @GetMapping(value = "/api/items/index/sell")
+    public ItemIndex getSellIndex() {
+        int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
+        return itemSellService.getIndex(user_id);
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/api/items/index/buy")
+    public ItemIndex getBuyIndex() {
+        int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
+        return itemBuyService.getIndex(user_id);
+    }
     @CrossOrigin
     @GetMapping(value = "/api/items/sell")
     public List<ItemSell> userGetItemSellList() {
@@ -180,7 +194,7 @@ public class ItemController {
     }
     @CrossOrigin
     @GetMapping(value = "/api/items/recent")
-    public List<HotSell> getRencentItem() {
+    public List<HotSell> getRecentItem() {
         return itemStockService.getRecentItem();
     }
 }
