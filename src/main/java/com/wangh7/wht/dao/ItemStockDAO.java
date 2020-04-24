@@ -8,9 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ItemStockDAO extends JpaRepository<ItemStock, Integer> {
-    List<ItemStock> findAllByItemType_TypeCodeAndStatus(String typeCode, String status);
+    List<ItemStock> findAllByItemType_TypeCodeAndStatusAndDueTimeGreaterThan(String typeCode, String status, long nowTime);
 
-    List<ItemStock> findAllByStatus(String status);
+    List<ItemStock> findAllByStatusAndDueTimeGreaterThan(String status, long nowTime);
 
     ItemStock findByItemId(int item_id);
 

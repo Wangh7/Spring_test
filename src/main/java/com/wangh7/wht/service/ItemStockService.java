@@ -3,6 +3,7 @@ package com.wangh7.wht.service;
 import com.wangh7.wht.dao.ItemStockDAO;
 import com.wangh7.wht.entity.HotSell;
 import com.wangh7.wht.pojo.ItemStock;
+import com.wangh7.wht.utils.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +15,15 @@ public class ItemStockService {
     ItemStockDAO itemStockDAO;
 
     public List<ItemStock> list() {
-        return itemStockDAO.findAllByStatus("N");
+        DateTimeUtils dateTimeUtils = new DateTimeUtils();
+        return itemStockDAO.findAllByStatusAndDueTimeGreaterThan("N", dateTimeUtils.getTimeLong());
     }
 
     public List<ItemStock> listByTypeCode(String typeCode) {
-        return itemStockDAO.findAllByItemType_TypeCodeAndStatus(typeCode,"N");
+        DateTimeUtils dateTimeUtils = new DateTimeUtils();
+        return itemStockDAO.findAllByItemType_TypeCodeAndStatusAndDueTimeGreaterThan(typeCode, "N", dateTimeUtils.getTimeLong());
     }
+
     public boolean addOrUpdate(ItemStock itemStock) {
         try {
             itemStockDAO.save(itemStock);
