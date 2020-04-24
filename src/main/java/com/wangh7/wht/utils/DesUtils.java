@@ -11,10 +11,12 @@ import java.util.Base64;
 public class DesUtils {
     static AlgorithmParameterSpec iv = null;
     private static SecretKey key = null;
-    private static String desIv = "giftcard";
-    private static String desKey = "giftcard";
+//    private static String desIv = "giftcard";
+//    private static String desKey = "giftcard";
 
-    public DesUtils() throws Exception {
+    public DesUtils(String cardNum) throws Exception {
+        String desKey = cardNum.substring(0, 8);
+        String desIv = cardNum.substring(cardNum.length() - 8);
         byte[] DESKey = desKey.getBytes();
         byte[] DESIv = desIv.getBytes();
         DESKeySpec desKeySpec = new DESKeySpec(DESKey);

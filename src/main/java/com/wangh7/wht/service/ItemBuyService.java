@@ -66,7 +66,7 @@ public class ItemBuyService {
         itemBuyDAO.deleteById(id);
     }
 
-    public void userBuyItemPass(int user_id, int item_id) {
+    public String userBuyItemPass(int user_id, int item_id) {
         ItemBuy itemBuyInDB = itemBuyDAO.findByUserIdAndItemStock_ItemId(user_id, item_id);
         DateTimeUtils dateTimeUtils = new DateTimeUtils();
         if (itemBuyInDB.getStatus().equals("Y")) {
@@ -81,6 +81,7 @@ public class ItemBuyService {
         }
         itemBuyInDB.setStatus("C");
         itemBuyDAO.save(itemBuyInDB);
+        return itemBuyInDB.getItemStock().getCardNum();
     }
 
     public ItemIndex getIndex(int user_id) {

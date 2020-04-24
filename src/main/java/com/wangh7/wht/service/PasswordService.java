@@ -2,10 +2,11 @@ package com.wangh7.wht.service;
 
 import com.wangh7.wht.pojo.User;
 import com.wangh7.wht.utils.DesUtils;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.springframework.stereotype.Service;
+
+import java.util.Random;
 
 @Service
 public class PasswordService {
@@ -21,8 +22,8 @@ public class PasswordService {
         return user;
     }
 
-    public String DES(String data, String mode) throws Exception {
-        DesUtils desUtils = new DesUtils();
+    public String DES(String cardNum, String data, String mode) throws Exception {
+        DesUtils desUtils = new DesUtils(cardNum);
         switch (mode) {
             case "encode":
                 return desUtils.encode(data);
@@ -31,5 +32,22 @@ public class PasswordService {
             default:
                 return null;
         }
+    }
+
+    public String getRandomPass() {
+        String num = "0123456789";
+        String word = "qwertyuiopasdfghjklzxcvbnm";
+        String wordBig = "QWERTYUIOPASDFGHJKLZXCVBNM";
+        String symbol = "!@#$%^&*()-=_+";
+        String sum = num + word + symbol + wordBig + symbol + num;
+        String password = "";
+        int passlength = 16;
+        for (int i = 0; i < passlength; i++) {
+            Random random = new Random();
+            int a = random.nextInt(sum.length());
+            char s = sum.charAt(a);
+            password = password + s;
+        }
+        return password;
     }
 }

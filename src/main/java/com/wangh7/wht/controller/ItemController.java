@@ -55,12 +55,13 @@ public class ItemController {
     @GetMapping(value = "/api/items/car")
     public Result addShopCar(@RequestParam int item_id) {
         int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
-        if(itemBuyService.addShopCar(user_id,item_id)){
+        if (itemBuyService.addShopCar(user_id, item_id)) {
             return ResultFactory.buildSuccessResult("success");
         } else {
             return ResultFactory.buildFailResult("商品已在购物车中");
         }
     }
+
     @CrossOrigin
     @GetMapping("api/items/types")
     public List<ItemType> listType() throws Exception {
@@ -99,6 +100,7 @@ public class ItemController {
         int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
         return itemBuyService.getIndex(user_id);
     }
+
     @CrossOrigin
     @GetMapping(value = "/api/items/sell")
     public List<ItemSell> userGetItemSellList() {
@@ -169,13 +171,15 @@ public class ItemController {
     public List<ItemTimeline> getItemTimeline(@RequestParam int item_id, @RequestParam String status) {
         return itemTimelineService.getItemTimeline(item_id, status);
     }
+
     @CrossOrigin
     @GetMapping(value = "/api/items/pass")
-    public String getDecodePass(@RequestParam String pass,@RequestParam int item_id) throws Exception{
+    public String getDecodePass(@RequestParam String pass, @RequestParam int item_id) throws Exception {
         int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
-        itemBuyService.userBuyItemPass(user_id,item_id);
-        return passwordService.DES(pass,"decode");
+        String cardNum = itemBuyService.userBuyItemPass(user_id, item_id);
+        return passwordService.DES(cardNum, pass, "decode");
     }
+
     @CrossOrigin
     @GetMapping(value = "/api/items/discount/time")
     public List<DiscountTime> discountTimeList() {
@@ -187,11 +191,13 @@ public class ItemController {
     public List<DiscountTime> discountAdsList() {
         return discountTimeService.adslist();
     }
+
     @CrossOrigin
     @GetMapping(value = "/api/items/hot")
     public List<HotSell> getHotSell() {
         return itemStockService.getHotSell();
     }
+
     @CrossOrigin
     @GetMapping(value = "/api/items/recent")
     public List<HotSell> getRecentItem() {

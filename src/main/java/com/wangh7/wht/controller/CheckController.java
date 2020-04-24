@@ -38,17 +38,18 @@ public class CheckController {
 
     @CrossOrigin
     @PostMapping(value = "/api/check/success")
-    public Result checkSuccess(@RequestBody ItemCheck itemCheck) throws Exception{
-        if(itemSellService.checkSuccess(itemCheck)) {
+    public Result checkSuccess(@RequestBody ItemCheck itemCheck) throws Exception {
+        if (itemSellService.checkSuccess(itemCheck)) {
             return ResultFactory.buildSuccessResult("审查成功");
         } else {
             return ResultFactory.buildFailResult("审查失败");
         }
     }
+
     @CrossOrigin
     @PostMapping(value = "/api/check/fail")
     public Result checkFail(@RequestBody ItemCheck itemCheck) {
-        if(itemSellService.checkFail(itemCheck)) {
+        if (itemSellService.checkFail(itemCheck)) {
             return ResultFactory.buildSuccessResult("打回成功");
         } else {
             return ResultFactory.buildFailResult("打回失败");
@@ -56,8 +57,15 @@ public class CheckController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "/api/check/pass")
-    public String getDecodePass(@RequestParam String pass) throws Exception{
-        return passwordService.DES(pass,"decode");
+    @GetMapping(value = "/api/check/oldPass")
+    public String getDecodePass(@RequestParam int itemId, @RequestParam String pass) throws Exception {
+        String cardNum = itemSellService.getItemById(itemId).getCardNum();
+        return passwordService.DES(cardNum, pass, "decode");
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/api/check/newPass")
+    public String getNewPass() throws Exception {
+        return passwordService.getRandomPass();
     }
 }

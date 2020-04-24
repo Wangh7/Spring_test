@@ -49,6 +49,9 @@ public class ItemSellService {
         return itemSellDAO.findAllByManagerId(manager_id);
     }
 
+    public ItemSell getItemById(int item_id) {
+        return itemSellDAO.findByItemId(item_id);
+    }
     public boolean addOrUpdate(ItemSell itemSell) {
         try {
             DateTimeUtils dateTimeUtils = new DateTimeUtils();
@@ -58,7 +61,7 @@ public class ItemSellService {
             ItemTimeline itemTimeline = new ItemTimeline();
             itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
             itemTimeline.setStatus("S");
-            itemSell.setCardPass(passwordService.DES(itemSell.getCardPass(), "encode"));
+            itemSell.setCardPass(passwordService.DES(itemSell.getCardNum(),itemSell.getCardPass(), "encode"));
             itemSellDAO.save(itemSell);
             itemTimeline.setItemId(itemSell.getItemId());
             if (itemTimelineService.isExist(itemSell.getItemId())) {
@@ -111,7 +114,7 @@ public class ItemSellService {
         itemStock.setItemType(itemSellInDB.getItemType());
         itemStock.setManagerId(itemSellInDB.getManagerId());
         itemStock.setCardNum(itemSellInDB.getCardNum());
-        itemStock.setCardPass(passwordService.DES(itemCheck.getNewPassword(), "encode"));
+        itemStock.setCardPass(passwordService.DES(itemSellInDB.getCardNum(),itemCheck.getNewPassword(), "encode"));
         itemStock.setStatus("N");
         itemStock.setCreateTime(dateTimeUtils.getTimeLong()); //时间
         itemStock.setDueTime(itemSellInDB.getDueTime());
