@@ -29,4 +29,6 @@ public class ItemStock {
     @JoinColumn(name = "type_id")
     @ManyToOne
     private ItemType itemType;
+
+    boolean entity;
 }

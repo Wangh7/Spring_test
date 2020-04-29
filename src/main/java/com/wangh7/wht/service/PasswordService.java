@@ -22,6 +22,7 @@ public class PasswordService {
         return user;
     }
 
+
     public String DES(String cardNum, String data, String mode) throws Exception {
         DesUtils desUtils = new DesUtils(cardNum);
         switch (mode) {

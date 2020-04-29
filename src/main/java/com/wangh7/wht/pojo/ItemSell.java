@@ -32,4 +32,6 @@ public class ItemSell {
 
     double discountItem;
     double discountTime;
+
+    boolean entity;
 }

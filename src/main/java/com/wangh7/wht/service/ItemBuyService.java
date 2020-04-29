@@ -1,6 +1,7 @@
 package com.wangh7.wht.service;
 
 import com.wangh7.wht.dao.ItemBuyDAO;
+import com.wangh7.wht.dao.ItemSellDAO;
 import com.wangh7.wht.dao.ItemStockDAO;
 import com.wangh7.wht.dao.ItemTimelineDAO;
 import com.wangh7.wht.entity.ItemIndex;
@@ -29,6 +30,8 @@ public class ItemBuyService {
     PriceService priceService;
     @Autowired
     DiscountTimeService discountTimeService;
+    @Autowired
+    ItemSellService itemSellService;
 
     public List<ItemBuy> list() {
         return itemBuyDAO.findAll();
@@ -39,7 +42,7 @@ public class ItemBuyService {
     }
 
     public List<ItemBuy> userBoughtList(int user_id) {
-        return itemBuyDAO.findAllByUserIdAndStatusOrStatus(user_id, "Y", "C");
+        return itemBuyDAO.findAllByUserIdAndStatusNot(user_id, "N");
     }
 
     public boolean addShopCar(int user_id, int item_id) {
@@ -113,6 +116,17 @@ public class ItemBuyService {
         return itemIndex;
     }
 
+    public void buyEntityItem(int item_id) {
+        ItemTimeline itemTimeline = new ItemTimeline();
+        DateTimeUtils dateTimeUtils = new DateTimeUtils();
+        itemTimeline.setItemId(item_id);
+        itemTimeline.setTimestamp(dateTimeUtils.getTimeLong()); //时间
+        itemTimeline.setStatus("B");
+        itemTimeline.setContent("等待卖家发货");
+        itemTimelineDAO.save(itemTimeline);
+        itemSellService.sellEntityItem(item_id);
+    }
+
     public int userBuyItem(int user_id, List<Integer> item_ids) {
         Money balance = priceService.single(user_id).getMoney();
         Money price = Money.of(CurrencyUnit.of("CNY"), 0);
@@ -138,6 +152,11 @@ public class ItemBuyService {
                     ItemStock itemStockInDB = itemStockDAO.findByItemId(item_id);
                     ItemTimeline itemTimeline = new ItemTimeline();
 
+                    if(itemBuyInDB.getItemStock().isEntity()) { //实体卡
+                        itemBuyInDB.setStatus("W"); //等待发货
+                    } else { //电子卡
+                        itemBuyInDB.setStatus("Y"); //购买成功
+                    }
                     itemStockInDB.setStatus("Y");
 
                     itemTimeline.setItemId(item_id);
@@ -154,8 +173,8 @@ public class ItemBuyService {
                         }
                     }
 
-                    itemBuyInDB.setStatus("Y");
-                    itemBuyInDB.setFinishTime(dateTimeUtils.getTimeLong()); //时间
+
+                    itemBuyInDB.setFinishTime(dateTimeUtils.getTimeLong()); //支付时间
                     itemBuyInDB.setPrice(itemBuyInDB.getItemStock().getPrice().multipliedBy(itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell() * discount, RoundingMode.HALF_UP).getAmount());//实付款
 
                     itemBuyDAO.save(itemBuyInDB);
@@ -165,6 +184,9 @@ public class ItemBuyService {
                     //扣款
                     priceService.minus(user_id, item_id, itemBuyInDB.getItemStock().getPrice().getAmount(), itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell(), discount);
 
+                    if(itemBuyInDB.getItemStock().isEntity()) { //实体卡
+                        buyEntityItem(item_id);
+                    }
                 }
             } catch (IllegalArgumentException e) {
                 return 0; //异常
