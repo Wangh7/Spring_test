@@ -68,4 +68,35 @@ public class CheckController {
     public String getNewPass() throws Exception {
         return passwordService.getRandomPass();
     }
+
+    @CrossOrigin
+    @PostMapping(value = "/api/check/entity")
+    public Result confirmItem(@RequestBody ItemCheck itemCheck) {
+        if(itemSellService.checkEntity(itemCheck)) {
+            return ResultFactory.buildSuccessResult("审核成功");
+        } else {
+            return ResultFactory.buildFailResult("审核失败");
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/api/check/entity/success")
+    public Result successItem(@RequestBody ItemCheck itemCheck) {
+        if(itemSellService.checkEntitySuccess(itemCheck)) {
+            return ResultFactory.buildSuccessResult("审核成功");
+        } else {
+            return ResultFactory.buildFailResult("审核失败");
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/api/check/entity/fail")
+    public Result failItem(@RequestBody ItemCheck itemCheck) {
+//        if(itemSellService.checkEntityFail(itemCheck)) {
+//            return ResultFactory.buildSuccessResult("审核成功");
+//        } else {
+//            return ResultFactory.buildFailResult("审核失败");
+//        }
+        return null;
+    }
 }

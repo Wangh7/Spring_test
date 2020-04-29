@@ -119,6 +119,16 @@ public class ItemController {
     }
 
     @CrossOrigin
+    @PostMapping(value = "/api/items/sell/entity")
+    public Result sellExpress(@RequestBody ItemSell itemSell) {
+        if (itemSellService.sellEntityItemExpress(itemSell)) {
+            return ResultFactory.buildSuccessResult("发布成功");
+        } else {
+            return ResultFactory.buildFailResult("发布失败");
+        }
+    }
+
+    @CrossOrigin
     @PostMapping(value = "/api/items/sell/delete")
     public void deleteItemSell(@RequestBody ItemSell itemSell) {
         itemTimelineService.deleteAll(itemSell.getItemId());

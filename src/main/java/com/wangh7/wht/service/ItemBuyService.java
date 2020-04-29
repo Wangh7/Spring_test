@@ -116,15 +116,23 @@ public class ItemBuyService {
         return itemIndex;
     }
 
-    public void buyEntityItem(int item_id) {
+    public void buyEntityItem(int item_id, int status) {
         ItemTimeline itemTimeline = new ItemTimeline();
         DateTimeUtils dateTimeUtils = new DateTimeUtils();
         itemTimeline.setItemId(item_id);
         itemTimeline.setTimestamp(dateTimeUtils.getTimeLong()); //时间
         itemTimeline.setStatus("B");
-        itemTimeline.setContent("等待卖家发货");
+        switch (status) {
+            case 1:
+                itemTimeline.setContent("等待卖家发货");break;
+            case 2:
+                itemTimeline.setContent("卖家已发货至平台");break;
+            case 3:
+                itemTimeline.setContent("平台已收货，等待审核");break;
+            case 4:
+                itemTimeline.setContent("平台审核通过");break;
+        }
         itemTimelineDAO.save(itemTimeline);
-        itemSellService.sellEntityItem(item_id);
     }
 
     public int userBuyItem(int user_id, List<Integer> item_ids) {
@@ -185,7 +193,8 @@ public class ItemBuyService {
                     priceService.minus(user_id, item_id, itemBuyInDB.getItemStock().getPrice().getAmount(), itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell(), discount);
 
                     if(itemBuyInDB.getItemStock().isEntity()) { //实体卡
-                        buyEntityItem(item_id);
+                        buyEntityItem(item_id,1);
+                        itemSellService.sellEntityItem(item_id,1);
                     }
                 }
             } catch (IllegalArgumentException e) {
