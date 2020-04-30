@@ -12,4 +12,5 @@ public class ItemCheck {
     long checkTime;
 
     BigDecimal price;
+    String expressNumNew;
 }

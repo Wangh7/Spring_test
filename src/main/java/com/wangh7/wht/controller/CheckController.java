@@ -3,8 +3,10 @@ package com.wangh7.wht.controller;
 
 import com.wangh7.wht.entity.ItemCheck;
 import com.wangh7.wht.pojo.ItemSell;
+import com.wangh7.wht.pojo.User;
 import com.wangh7.wht.response.Result;
 import com.wangh7.wht.response.ResultFactory;
+import com.wangh7.wht.service.ItemBuyService;
 import com.wangh7.wht.service.ItemSellService;
 import com.wangh7.wht.service.PasswordService;
 import com.wangh7.wht.service.UserService;
@@ -18,6 +20,8 @@ import java.util.List;
 public class CheckController {
     @Autowired
     ItemSellService itemSellService;
+    @Autowired
+    ItemBuyService itemBuyService;
     @Autowired
     UserService userService;
     @Autowired
@@ -36,6 +40,12 @@ public class CheckController {
         return itemSellService.getOwnList(user_id);
     }
 
+    @CrossOrigin
+    @GetMapping(value = "/api/check/user")
+    public User getUserInfo(@RequestParam int item_id) {
+        return userService.singleUser(itemBuyService.getUserId(item_id));
+
+    }
     @CrossOrigin
     @PostMapping(value = "/api/check/success")
     public Result checkSuccess(@RequestBody ItemCheck itemCheck) throws Exception {

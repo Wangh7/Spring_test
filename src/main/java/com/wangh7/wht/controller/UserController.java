@@ -47,7 +47,7 @@ public class UserController {
     @CrossOrigin
     @PostMapping(value = "/api/user/single")
     public Result editSingleUser(@RequestBody User user) {
-        if(userService.editUser(user)) {
+        if(userService.editUserSingle(user)) {
             return ResultFactory.buildSuccessResult("修改成功");
         } else {
             return ResultFactory.buildFailResult("修改失败");

@@ -55,6 +55,9 @@ public class UserService {
     public User singleUser(String username) {
         return userDAO.singleUser(username);
     }
+    public User singleUser(int user_id) {
+        return userDAO.singleUser(user_id);
+    }
 
     public void addOrUpdate(User user) {
         userDAO.save(user);
@@ -69,9 +72,23 @@ public class UserService {
         userInDB.setUsername(user.getUsername());
         userInDB.setNickname(user.getNickname());
         userInDB.setPhone(user.getPhone());
+        userInDB.setAddress(user.getAddress());
         try {
             userDAO.save(userInDB);
             userRoleService.saveRoleChanges(userInDB.getId(), user.getRoles());
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
+    }
+    public boolean editUserSingle(User user) {
+        User userInDB = userDAO.findByUsername(user.getUsername());
+        userInDB.setUsername(user.getUsername());
+        userInDB.setNickname(user.getNickname());
+        userInDB.setPhone(user.getPhone());
+        userInDB.setAddress(user.getAddress());
+        try {
+            userDAO.save(userInDB);
         } catch (IllegalArgumentException e) {
             return false;
         }
@@ -84,7 +101,6 @@ public class UserService {
         userInDB.setSalt(user.getSalt());
         try {
             userDAO.save(userInDB);
-//            userRoleService
         } catch (IllegalArgumentException e) {
             return false;
         }

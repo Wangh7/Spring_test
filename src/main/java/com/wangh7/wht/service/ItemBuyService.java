@@ -1,9 +1,9 @@
 package com.wangh7.wht.service;
 
 import com.wangh7.wht.dao.ItemBuyDAO;
-import com.wangh7.wht.dao.ItemSellDAO;
 import com.wangh7.wht.dao.ItemStockDAO;
 import com.wangh7.wht.dao.ItemTimelineDAO;
+import com.wangh7.wht.entity.ItemCheck;
 import com.wangh7.wht.entity.ItemIndex;
 import com.wangh7.wht.pojo.DiscountTime;
 import com.wangh7.wht.pojo.ItemBuy;
@@ -130,11 +130,17 @@ public class ItemBuyService {
             case 3:
                 itemTimeline.setContent("平台已收货，等待审核");break;
             case 4:
-                itemTimeline.setContent("平台审核通过");break;
+                itemTimeline.setContent("平台审核通过，已发货");break;
+            case 5:
+                itemTimeline.setContent("买家确认收货");break;
         }
         itemTimelineDAO.save(itemTimeline);
     }
 
+    public int getUserId(int item_id) {
+        ItemBuy itemBuyInDB = itemBuyDAO.findByItemStock_ItemIdAndStatus(item_id,"W");
+        return itemBuyInDB.getUserId();
+    }
     public int userBuyItem(int user_id, List<Integer> item_ids) {
         Money balance = priceService.single(user_id).getMoney();
         Money price = Money.of(CurrencyUnit.of("CNY"), 0);
@@ -202,5 +208,17 @@ public class ItemBuyService {
             }
         }
         return 1; //成功
+    }
+
+    public boolean buyEntityItemExpress(ItemCheck itemCheck) {
+        try {
+            ItemBuy itemBuyInDB = itemBuyDAO.findByUserIdAndItemStock_ItemId(itemCheck.getManagerId(),itemCheck.getItemId());
+            itemBuyInDB.setStatus("Y");
+            itemBuyDAO.save(itemBuyInDB);
+            buyEntityItem(itemCheck.getItemId(),5);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
     }
 }

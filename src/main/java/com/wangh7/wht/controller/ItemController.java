@@ -2,6 +2,7 @@ package com.wangh7.wht.controller;
 
 
 import com.wangh7.wht.entity.HotSell;
+import com.wangh7.wht.entity.ItemCheck;
 import com.wangh7.wht.entity.ItemIds;
 import com.wangh7.wht.entity.ItemIndex;
 import com.wangh7.wht.pojo.*;
@@ -147,6 +148,18 @@ public class ItemController {
     public List<ItemBuy> userGetItemBoughtList() {
         int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
         return itemBuyService.userBoughtList(user_id);
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/api/items/buy/entity")
+    public Result confirmEntity(@RequestBody ItemCheck itemCheck) {
+        int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
+        itemCheck.setManagerId(user_id);
+        if(itemBuyService.buyEntityItemExpress(itemCheck)){
+            return ResultFactory.buildSuccessResult("成功");
+        } else {
+            return ResultFactory.buildFailResult("收货失败");
+        }
     }
 
     @CrossOrigin

@@ -29,6 +29,8 @@ public class User {
 
     String phone;
 
+    String address;
+
     boolean enabled;
 
     @Transient
@@ -43,10 +45,12 @@ public class User {
         this.phone = phone;
         this.enabled = enabled;
     }
-    public User(int id, String username, String nickname, String phone) {
+    public User(int id, String username, String nickname, String phone, String address) {
         this.id = id;
         this.username = username;
         this.nickname = nickname;
         this.phone = phone;
+        this.address = address;
     }
+
 }

@@ -228,8 +228,11 @@ public class ItemSellService {
     public boolean checkEntitySuccess(ItemCheck itemCheck) {
         try {
             ItemSell itemSellInDB = itemSellDAO.findByItemId(itemCheck.getItemId());
+            ItemStock itemStockInDB = itemStockDAO.findByItemId(itemCheck.getItemId());
             itemSellInDB.setStatus("T"); //审核成功
+            itemStockInDB.setCardNum(itemCheck.getExpressNumNew()); //新快递号存到stock中
             itemSellDAO.save(itemSellInDB);
+            itemStockDAO.save(itemStockInDB);
             sellEntityItem(itemCheck.getItemId(),4);
             itemBuyService.buyEntityItem(itemCheck.getItemId(),4);
 

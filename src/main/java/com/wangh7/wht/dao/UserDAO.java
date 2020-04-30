@@ -1,6 +1,7 @@
 package com.wangh7.wht.dao;
 
 import com.wangh7.wht.pojo.User;
+import org.elasticsearch.common.recycler.Recycler;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -13,6 +14,9 @@ public interface UserDAO extends JpaRepository<User,Integer> {
     @Query(value = "select new User(u.id,u.username,u.nickname,u.phone,u.enabled) from User u")
     List<User> list();
 
-    @Query(value = "select new User(u.id,u.username,u.nickname,u.phone) from User u where u.username = ?1")
+    @Query(value = "select new User(u.id,u.username,u.nickname,u.phone,u.address) from User u where u.username = ?1")
     User singleUser(String username);
+
+    @Query(value = "select new User(u.id,u.username,u.nickname,u.phone,u.address) from User u where u.id = ?1")
+    User singleUser(int id);
 }
