@@ -103,13 +103,13 @@ public class ItemBuyService {
             }
         }
         m2 = m2.minus(m1);
+        itemIndex.setTotalItem(itemBuys.size());
         itemBuys = itemBuyDAO.findAllByUserIdAndStatus(user_id, "N");
         for (ItemBuy itemBuy : itemBuys) {
             if (itemBuy.getItemStock().getDueTime() - dateTimeUtils.getTimeLong() < 1296000000 && itemBuy.getItemStock().getDueTime() - dateTimeUtils.getTimeLong() > 0) {
                 totalBuyCar++;
             }
         }
-        itemIndex.setTotalItem(itemBuys.size());
         itemIndex.setTotalPrice(m2.getAmount().doubleValue());
         itemIndex.setTotalBuyCar(totalBuyCar);
         itemIndex.setTotalBought(totalBought);
@@ -132,7 +132,13 @@ public class ItemBuyService {
             case 4:
                 itemTimeline.setContent("平台审核通过，已发货");break;
             case 5:
-                itemTimeline.setContent("买家确认收货");break;
+                itemTimeline.setContent("买家确认收货");
+                itemTimeline.setIcon("el-icon-check");
+                itemTimeline.setType("success");break;
+            case 6:
+                itemTimeline.setContent("商品审核出现问题，交易关闭，您的资金已退回");
+                itemTimeline.setIcon("el-icon-close");
+                itemTimeline.setType("danger");break;
         }
         itemTimelineDAO.save(itemTimeline);
     }

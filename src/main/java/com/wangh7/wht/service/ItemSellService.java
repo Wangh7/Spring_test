@@ -1,12 +1,10 @@
 package com.wangh7.wht.service;
 
 
-import com.wangh7.wht.dao.ItemSellDAO;
-import com.wangh7.wht.dao.ItemStockDAO;
-import com.wangh7.wht.dao.ItemTimelineDAO;
-import com.wangh7.wht.dao.ItemTypeDAO;
+import com.wangh7.wht.dao.*;
 import com.wangh7.wht.entity.ItemCheck;
 import com.wangh7.wht.entity.ItemIndex;
+import com.wangh7.wht.pojo.ItemBuy;
 import com.wangh7.wht.pojo.ItemSell;
 import com.wangh7.wht.pojo.ItemStock;
 import com.wangh7.wht.pojo.ItemTimeline;
@@ -27,6 +25,8 @@ public class ItemSellService {
     ItemSellDAO itemSellDAO;
     @Autowired
     ItemStockDAO itemStockDAO;
+    @Autowired
+    ItemBuyDAO itemBuyDAO;
     @Autowired
     ItemTypeDAO itemTypeDAO;
     @Autowired
@@ -112,7 +112,13 @@ public class ItemSellService {
             case 3:
                 itemTimeline.setContent("平台已收货，等待平台审核");break;
             case 4:
-                itemTimeline.setContent("平台审核通过");break;
+                itemTimeline.setContent("平台审核通过");
+                itemTimeline.setIcon("el-icon-check");
+                itemTimeline.setType("success");break;
+            case 5:
+                itemTimeline.setContent("平台审核未通过，卡片已退回，请注意查收");
+                itemTimeline.setIcon("el-icon-close");
+                itemTimeline.setType("danger");break;
         }
         itemTimelineDAO.save(itemTimeline);
 
@@ -241,5 +247,31 @@ public class ItemSellService {
             return false;
         }
         return true;
+    }
+
+    public boolean checkEntityFail(ItemCheck itemCheck) {
+        try {
+            ItemBuy itemBuyInDB = itemBuyDAO.findByItemStock_ItemIdAndStatus(itemCheck.getItemId(),"W");
+            ItemSell itemSellInDB = itemSellDAO.findByItemId(itemCheck.getItemId());
+            ItemStock itemStockInDB = itemStockDAO.findByItemId(itemCheck.getItemId());
+            itemBuyInDB.setStatus("F");//交易关闭
+            itemSellInDB.setStatus("F1");//审核未通过，已退回
+            itemStockInDB.setCardNum(itemCheck.getExpressNumNew());//新快递号存stock
+            itemBuyDAO.save(itemBuyInDB);
+            itemSellDAO.save(itemSellInDB);
+            itemStockDAO.save(itemStockInDB);
+            sellEntityItem(itemCheck.getItemId(),5);
+            itemBuyService.buyEntityItem(itemCheck.getItemId(),6);
+            //买家退款
+            priceService.plus(itemBuyInDB.getUserId(), itemBuyInDB.getItemStock().getItemId(), itemBuyInDB.getPrice());
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public int getUserId(int item_id) {
+        ItemSell itemSellInDB = itemSellDAO.findByItemId(item_id);
+        return itemSellInDB.getUserId();
     }
 }

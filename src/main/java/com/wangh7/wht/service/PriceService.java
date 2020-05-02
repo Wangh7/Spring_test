@@ -49,6 +49,25 @@ public class PriceService {
         }
         return true;
     }
+    public boolean plus(int user_id, int item_id, BigDecimal money) {
+        try {
+            DateTimeUtils dateTimeUtils = new DateTimeUtils();
+            ItemTimeline itemTimeline = new ItemTimeline();
+            Money m = Money.of(CurrencyUnit.of("CNY"), money);
+            Price price = single(user_id);
+            price.setMoney(single(user_id).getMoney().plus(m));
+            priceDAO.save(price);
+            itemTimeline.setItemId(item_id);
+            itemTimeline.setStatus("B");
+            itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
+            itemTimeline.setContent("资金已到账，退款：" + m + "元");
+            itemTimeline.setType("warning");
+            itemTimelineService.addOrUpdate(itemTimeline);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
+    }
 
     public boolean plus(int user_id, int item_id, BigDecimal money, double discountItem, double discountTime) {
         try {

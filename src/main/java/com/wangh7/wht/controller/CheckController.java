@@ -41,10 +41,15 @@ public class CheckController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "/api/check/user")
-    public User getUserInfo(@RequestParam int item_id) {
+    @GetMapping(value = "/api/check/buyer")
+    public User getBuyerInfo(@RequestParam int item_id) {
         return userService.singleUser(itemBuyService.getUserId(item_id));
+    }
 
+    @CrossOrigin
+    @GetMapping(value = "/api/check/seller")
+    public User getSellerInfo(@RequestParam int item_id) {
+        return userService.singleUser(itemSellService.getUserId(item_id));
     }
     @CrossOrigin
     @PostMapping(value = "/api/check/success")
@@ -102,11 +107,10 @@ public class CheckController {
     @CrossOrigin
     @PostMapping(value = "/api/check/entity/fail")
     public Result failItem(@RequestBody ItemCheck itemCheck) {
-//        if(itemSellService.checkEntityFail(itemCheck)) {
-//            return ResultFactory.buildSuccessResult("审核成功");
-//        } else {
-//            return ResultFactory.buildFailResult("审核失败");
-//        }
-        return null;
+        if(itemSellService.checkEntityFail(itemCheck)) {
+            return ResultFactory.buildSuccessResult("审核成功");
+        } else {
+            return ResultFactory.buildFailResult("审核失败");
+        }
     }
 }
