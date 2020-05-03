@@ -2,6 +2,7 @@ package com.wangh7.wht.service;
 
 
 import com.wangh7.wht.dao.*;
+import com.wangh7.wht.entity.CheckIndex;
 import com.wangh7.wht.entity.ItemCheck;
 import com.wangh7.wht.entity.ItemIndex;
 import com.wangh7.wht.pojo.ItemBuy;
@@ -124,6 +125,26 @@ public class ItemSellService {
 
     }
 
+    public boolean sellEntityItemBack(ItemSell itemSell) {
+        try {
+            ItemSell itemSellInDB = itemSellDAO.findByItemId(itemSell.getItemId());
+            ItemTimeline itemTimeline = new ItemTimeline();
+            DateTimeUtils dateTimeUtils = new DateTimeUtils();
+            itemTimeline.setItemId(itemSell.getItemId());
+            itemTimeline.setStatus("S");
+            itemTimeline.setTimestamp(dateTimeUtils.getTimeLong()); //时间itemTimeline2.setStatus("S");
+            itemTimeline.setContent("卖家确认退回收货");
+            itemTimeline.setIcon("el-icon-more");
+            itemTimeline.setType("primary");
+            itemSellInDB.setStatus("F2");//卖家确认收货
+            itemTimelineDAO.save(itemTimeline);
+            itemSellDAO.save(itemSellInDB);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
+    }
+
     public boolean sellEntityItemExpress(ItemSell itemSell) {
         try {
             ItemSell itemSellInDB = itemSellDAO.findByItemId(itemSell.getItemId());
@@ -151,9 +172,19 @@ public class ItemSellService {
         itemIndex.setTotalPrice(totalPrice);
         itemIndex.setTotalSellN(itemSellDAO.findAllByUserIdAndStatus(user_id, "N").size());
         itemIndex.setTotalSellF(itemSellDAO.findAllByUserIdAndStatus(user_id, "F").size());
+        itemIndex.setTotalSellW(itemSellDAO.findAllByUserIdAndStatus(user_id, "N2").size());
+        itemIndex.setTotalSellF1(itemSellDAO.findAllByUserIdAndStatus(user_id,"F1").size());
         return itemIndex;
     }
 
+    public CheckIndex getCheckIndex(int manager_id) {
+        CheckIndex checkIndex = new CheckIndex();
+        List<ItemSell> itemSells = itemSellDAO.findAllByManagerId(manager_id);
+        List<ItemSell> itemSells2 = itemSellDAO.findAllByManagerId(0);
+        checkIndex.setTotalCheck(itemSells.size());
+        checkIndex.setWaitCheck(itemSells2.size());
+        return checkIndex;
+    }
     public boolean checkSuccess(ItemCheck itemCheck) throws Exception {
         ItemSell itemSellInDB = itemSellDAO.findByItemId(itemCheck.getItemId());
         ItemStock itemStock = new ItemStock();
@@ -253,13 +284,11 @@ public class ItemSellService {
         try {
             ItemBuy itemBuyInDB = itemBuyDAO.findByItemStock_ItemIdAndStatus(itemCheck.getItemId(),"W");
             ItemSell itemSellInDB = itemSellDAO.findByItemId(itemCheck.getItemId());
-            ItemStock itemStockInDB = itemStockDAO.findByItemId(itemCheck.getItemId());
             itemBuyInDB.setStatus("F");//交易关闭
             itemSellInDB.setStatus("F1");//审核未通过，已退回
-            itemStockInDB.setCardNum(itemCheck.getExpressNumNew());//新快递号存stock
+            itemSellInDB.setCardPass(itemCheck.getExpressNumNew());//新快递号存password中
             itemBuyDAO.save(itemBuyInDB);
             itemSellDAO.save(itemSellInDB);
-            itemStockDAO.save(itemStockInDB);
             sellEntityItem(itemCheck.getItemId(),5);
             itemBuyService.buyEntityItem(itemCheck.getItemId(),6);
             //买家退款

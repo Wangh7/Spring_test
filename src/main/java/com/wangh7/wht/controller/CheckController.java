@@ -1,6 +1,7 @@
 package com.wangh7.wht.controller;
 
 
+import com.wangh7.wht.entity.CheckIndex;
 import com.wangh7.wht.entity.ItemCheck;
 import com.wangh7.wht.pojo.ItemSell;
 import com.wangh7.wht.pojo.User;
@@ -112,5 +113,12 @@ public class CheckController {
         } else {
             return ResultFactory.buildFailResult("审核失败");
         }
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/api/check/index")
+    public CheckIndex getCheckIndex() {
+        int user_id = userService.findByUsername(SecurityUtils.getSubject().getPrincipal().toString()).getId();
+        return itemSellService.getCheckIndex(user_id);
     }
 }
