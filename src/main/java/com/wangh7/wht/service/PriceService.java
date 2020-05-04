@@ -62,6 +62,7 @@ public class PriceService {
             itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
             itemTimeline.setContent("资金已到账，退款：" + m + "元");
             itemTimeline.setType("warning");
+            itemTimeline.setIcon("el-icon-coin");
             itemTimelineService.addOrUpdate(itemTimeline);
         } catch (IllegalArgumentException e) {
             return false;
@@ -82,6 +83,7 @@ public class PriceService {
             itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
             itemTimeline.setContent("资金已到账，收入：" + m + "元。（商品折扣：" + discountItem + "，时间折扣：" + discountTime+"）");
             itemTimeline.setType("warning");
+            itemTimeline.setIcon("el-icon-coin");
             itemTimelineService.addOrUpdate(itemTimeline);
         } catch (IllegalArgumentException e) {
             return false;
@@ -102,6 +104,7 @@ public class PriceService {
             itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
             itemTimeline.setContent("订单支付完成，支出：" + m + "元。（商品折扣：" + discountItem + "，时间折扣：" + discountTime+"）");
             itemTimeline.setType("warning");
+            itemTimeline.setIcon("el-icon-coin");
             itemTimelineService.addOrUpdate(itemTimeline);
         } catch (IllegalArgumentException e) {
             return false;

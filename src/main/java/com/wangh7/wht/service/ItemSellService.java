@@ -161,12 +161,14 @@ public class ItemSellService {
 
     public ItemIndex getIndex(int user_id) {
         double totalPrice = 0;
+        Money total = Money.of(CurrencyUnit.of("CNY"),0);
         ItemIndex itemIndex = new ItemIndex();
         List<ItemSell> itemSells = itemSellDAO.findAllByUserIdAndStatus(user_id, "T");
         for (ItemSell itemSell : itemSells) {
             Money m = Money.of(CurrencyUnit.of("CNY"), itemSell.getPrice());
             m = m.multipliedBy(itemSell.getDiscountItem() * itemSell.getDiscountItem(), RoundingMode.HALF_UP);
-            totalPrice += m.getAmount().doubleValue();
+            total = total.plus(m);
+            totalPrice = total.getAmount().doubleValue();
         }
         itemIndex.setTotalItem(itemSells.size());
         itemIndex.setTotalPrice(totalPrice);
