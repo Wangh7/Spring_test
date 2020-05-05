@@ -2,13 +2,11 @@ package com.wangh7.wht.service;
 
 import com.wangh7.wht.dao.ItemBuyDAO;
 import com.wangh7.wht.dao.ItemStockDAO;
-import com.wangh7.wht.dao.ItemTimelineDAO;
 import com.wangh7.wht.entity.ItemCheck;
 import com.wangh7.wht.entity.ItemIndex;
 import com.wangh7.wht.pojo.DiscountTime;
 import com.wangh7.wht.pojo.ItemBuy;
 import com.wangh7.wht.pojo.ItemStock;
-import com.wangh7.wht.pojo.ItemTimeline;
 import com.wangh7.wht.utils.DateTimeUtils;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
@@ -25,13 +23,13 @@ public class ItemBuyService {
     @Autowired
     ItemStockDAO itemStockDAO;
     @Autowired
-    ItemTimelineDAO itemTimelineDAO;
-    @Autowired
     PriceService priceService;
     @Autowired
     DiscountTimeService discountTimeService;
     @Autowired
     ItemSellService itemSellService;
+    @Autowired
+    ItemTimelineService itemTimelineService;
 
     public List<ItemBuy> list() {
         return itemBuyDAO.findAll();
@@ -71,19 +69,11 @@ public class ItemBuyService {
 
     public String userBuyItemPass(int user_id, int item_id) {
         ItemBuy itemBuyInDB = itemBuyDAO.findByUserIdAndItemStock_ItemId(user_id, item_id);
-        DateTimeUtils dateTimeUtils = new DateTimeUtils();
         if (itemBuyInDB.getStatus().equals("Y")) {
-            ItemTimeline itemTimeline = new ItemTimeline();
-            itemTimeline.setItemId(item_id);
-            itemTimeline.setStatus("B");
-            itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
-            itemTimeline.setContent("用户查看密码");
-            itemTimeline.setType("primary");
-            itemTimeline.setIcon("el-icon-more");
-            itemTimelineDAO.save(itemTimeline);
+            itemBuyInDB.setStatus("C");
+            itemBuyDAO.save(itemBuyInDB);
+            itemTimelineService.buyEntityItem(item_id,7);
         }
-        itemBuyInDB.setStatus("C");
-        itemBuyDAO.save(itemBuyInDB);
         return itemBuyInDB.getItemStock().getCardNum();
     }
 
@@ -116,32 +106,32 @@ public class ItemBuyService {
         return itemIndex;
     }
 
-    public void buyEntityItem(int item_id, int status) {
-        ItemTimeline itemTimeline = new ItemTimeline();
-        DateTimeUtils dateTimeUtils = new DateTimeUtils();
-        itemTimeline.setItemId(item_id);
-        itemTimeline.setTimestamp(dateTimeUtils.getTimeLong()); //时间
-        itemTimeline.setStatus("B");
-        switch (status) {
-            case 1:
-                itemTimeline.setContent("等待卖家发货");break;
-            case 2:
-                itemTimeline.setContent("卖家已发货至平台");break;
-            case 3:
-                itemTimeline.setContent("平台已收货，等待审核");break;
-            case 4:
-                itemTimeline.setContent("平台审核通过，已发货");break;
-            case 5:
-                itemTimeline.setContent("买家确认收货");
-                itemTimeline.setIcon("el-icon-check");
-                itemTimeline.setType("success");break;
-            case 6:
-                itemTimeline.setContent("商品审核出现问题，交易关闭，您的资金已退回");
-                itemTimeline.setIcon("el-icon-close");
-                itemTimeline.setType("danger");break;
-        }
-        itemTimelineDAO.save(itemTimeline);
-    }
+//    public void buyEntityItem(int item_id, int status) {
+//        ItemTimeline itemTimeline = new ItemTimeline();
+//        DateTimeUtils dateTimeUtils = new DateTimeUtils();
+//        itemTimeline.setItemId(item_id);
+//        itemTimeline.setTimestamp(dateTimeUtils.getTimeLong()); //时间
+//        itemTimeline.setStatus("B");
+//        switch (status) {
+//            case 1:
+//                itemTimeline.setContent("等待卖家发货");break;
+//            case 2:
+//                itemTimeline.setContent("卖家已发货至平台");break;
+//            case 3:
+//                itemTimeline.setContent("平台已收货，等待审核");break;
+//            case 4:
+//                itemTimeline.setContent("平台审核通过，已发货");break;
+//            case 5:
+//                itemTimeline.setContent("买家确认收货");
+//                itemTimeline.setIcon("el-icon-check");
+//                itemTimeline.setType("success");break;
+//            case 6:
+//                itemTimeline.setContent("商品审核出现问题，交易关闭，您的资金已退回");
+//                itemTimeline.setIcon("el-icon-close");
+//                itemTimeline.setType("danger");break;
+//        }
+//        itemTimelineDAO.save(itemTimeline);
+//    }
 
     public int getUserId(int item_id) {
         ItemBuy itemBuyInDB = itemBuyDAO.findByItemStock_ItemIdAndStatus(item_id,"W");
@@ -170,7 +160,6 @@ public class ItemBuyService {
                 for (int item_id : item_ids) {
                     ItemBuy itemBuyInDB = itemBuyDAO.findByUserIdAndItemStock_ItemId(user_id, item_id);
                     ItemStock itemStockInDB = itemStockDAO.findByItemId(item_id);
-                    ItemTimeline itemTimeline = new ItemTimeline();
 
                     if(itemBuyInDB.getItemStock().isEntity()) { //实体卡
                         itemBuyInDB.setStatus("W"); //等待发货
@@ -178,11 +167,6 @@ public class ItemBuyService {
                         itemBuyInDB.setStatus("Y"); //购买成功
                     }
                     itemStockInDB.setStatus("Y");
-
-                    itemTimeline.setItemId(item_id);
-                    itemTimeline.setStatus("B");
-                    itemTimeline.setTimestamp(dateTimeUtils.getTimeLong()); //时间
-                    itemTimeline.setContent("用户提交订单");
 
                     //获取时间折扣
                     double discount = 1;
@@ -199,14 +183,14 @@ public class ItemBuyService {
 
                     itemBuyDAO.save(itemBuyInDB);
                     itemStockDAO.save(itemStockInDB);
-                    itemTimelineDAO.save(itemTimeline);
+                    itemTimelineService.buyEntityItem(item_id,8);
 
                     //扣款
                     priceService.minus(user_id, item_id, itemBuyInDB.getItemStock().getPrice().getAmount(), itemBuyInDB.getItemStock().getItemType().getTypeDiscountSell(), discount);
 
                     if(itemBuyInDB.getItemStock().isEntity()) { //实体卡
-                        buyEntityItem(item_id,1);
-                        itemSellService.sellEntityItem(item_id,1);
+                        itemTimelineService.buyEntityItem(item_id,1);
+                        itemSellService.buyerPayEntity(item_id);
                     }
                 }
             } catch (IllegalArgumentException e) {
@@ -221,7 +205,7 @@ public class ItemBuyService {
             ItemBuy itemBuyInDB = itemBuyDAO.findByUserIdAndItemStock_ItemId(itemCheck.getManagerId(),itemCheck.getItemId());
             itemBuyInDB.setStatus("Y");
             itemBuyDAO.save(itemBuyInDB);
-            buyEntityItem(itemCheck.getItemId(),5);
+            itemTimelineService.buyEntityItem(itemCheck.getItemId(),5);
         } catch (IllegalArgumentException e) {
             return false;
         }

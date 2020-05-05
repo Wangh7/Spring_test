@@ -1,9 +1,7 @@
 package com.wangh7.wht.service;
 
 import com.wangh7.wht.dao.PriceDAO;
-import com.wangh7.wht.pojo.ItemTimeline;
 import com.wangh7.wht.pojo.Price;
-import com.wangh7.wht.utils.DateTimeUtils;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,19 +49,11 @@ public class PriceService {
     }
     public boolean plus(int user_id, int item_id, BigDecimal money) {
         try {
-            DateTimeUtils dateTimeUtils = new DateTimeUtils();
-            ItemTimeline itemTimeline = new ItemTimeline();
             Money m = Money.of(CurrencyUnit.of("CNY"), money);
             Price price = single(user_id);
             price.setMoney(single(user_id).getMoney().plus(m));
             priceDAO.save(price);
-            itemTimeline.setItemId(item_id);
-            itemTimeline.setStatus("B");
-            itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
-            itemTimeline.setContent("资金已到账，退款：" + m + "元");
-            itemTimeline.setType("warning");
-            itemTimeline.setIcon("el-icon-coin");
-            itemTimelineService.addOrUpdate(itemTimeline);
+            itemTimelineService.priceTimeline(item_id,m,0,0,1);
         } catch (IllegalArgumentException e) {
             return false;
         }
@@ -72,19 +62,11 @@ public class PriceService {
 
     public boolean plus(int user_id, int item_id, BigDecimal money, double discountItem, double discountTime) {
         try {
-            DateTimeUtils dateTimeUtils = new DateTimeUtils();
-            ItemTimeline itemTimeline = new ItemTimeline();
             Money m = Money.of(CurrencyUnit.of("CNY"), money).multipliedBy(discountItem * discountTime, RoundingMode.HALF_UP);
             Price price = single(user_id);
             price.setMoney(single(user_id).getMoney().plus(m));
             priceDAO.save(price);
-            itemTimeline.setItemId(item_id);
-            itemTimeline.setStatus("S");
-            itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
-            itemTimeline.setContent("资金已到账，收入：" + m + "元。（商品折扣：" + discountItem + "，时间折扣：" + discountTime+"）");
-            itemTimeline.setType("warning");
-            itemTimeline.setIcon("el-icon-coin");
-            itemTimelineService.addOrUpdate(itemTimeline);
+            itemTimelineService.priceTimeline(item_id,m,discountItem,discountTime,2);
         } catch (IllegalArgumentException e) {
             return false;
         }
@@ -93,19 +75,11 @@ public class PriceService {
 
     public boolean minus(int user_id, int item_id, BigDecimal money, double discountItem, double discountTime) {
         try {
-            DateTimeUtils dateTimeUtils = new DateTimeUtils();
-            ItemTimeline itemTimeline = new ItemTimeline();
             Money m = Money.of(CurrencyUnit.of("CNY"), money).multipliedBy(discountItem * discountTime, RoundingMode.HALF_UP);
             Price price = single(user_id);
             price.setMoney(single(user_id).getMoney().minus(m));
             priceDAO.save(price);
-            itemTimeline.setItemId(item_id);
-            itemTimeline.setStatus("B");
-            itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
-            itemTimeline.setContent("订单支付完成，支出：" + m + "元。（商品折扣：" + discountItem + "，时间折扣：" + discountTime+"）");
-            itemTimeline.setType("warning");
-            itemTimeline.setIcon("el-icon-coin");
-            itemTimelineService.addOrUpdate(itemTimeline);
+            itemTimelineService.priceTimeline(item_id,m,discountItem,discountTime,3);
         } catch (IllegalArgumentException e) {
             return false;
         }

@@ -8,7 +8,6 @@ import com.wangh7.wht.entity.ItemIndex;
 import com.wangh7.wht.pojo.ItemBuy;
 import com.wangh7.wht.pojo.ItemSell;
 import com.wangh7.wht.pojo.ItemStock;
-import com.wangh7.wht.pojo.ItemTimeline;
 import com.wangh7.wht.utils.DateTimeUtils;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
@@ -30,10 +29,6 @@ public class ItemSellService {
     ItemBuyDAO itemBuyDAO;
     @Autowired
     ItemTypeDAO itemTypeDAO;
-    @Autowired
-    ItemTimelineDAO itemTimelineDAO;
-    @Autowired
-    ItemBuyService itemBuyService;
     @Autowired
     PasswordService passwordService;
     @Autowired
@@ -65,20 +60,15 @@ public class ItemSellService {
             if (itemSell.getCreateTime() == 0) {
                 itemSell.setCreateTime(dateTimeUtils.getTimeLong());//时间
             }
-            ItemTimeline itemTimeline = new ItemTimeline();
-            itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
-            itemTimeline.setStatus("S");
             if (!itemSell.isEntity()) { //电子卡 加密存储卡密
                 itemSell.setCardPass(passwordService.DES(itemSell.getCardNum(), itemSell.getCardPass(), "encode"));
             }
             itemSellDAO.save(itemSell);
-            itemTimeline.setItemId(itemSell.getItemId());
             if (itemTimelineService.isExist(itemSell.getItemId())) {
-                itemTimeline.setContent("用户修改商品信息");
+                itemTimelineService.sellEntityItem(itemSell.getItemId(),9);
             } else {
-                itemTimeline.setContent("用户创建商品信息");
+                itemTimelineService.sellEntityItem(itemSell.getItemId(),10);
             }
-            itemTimelineService.addOrUpdate(itemTimeline);
         } catch (Exception e) {
             return false;
         }
@@ -95,50 +85,24 @@ public class ItemSellService {
         return itemSellDAO.findAllByUserId(user_id);
     }
 
-    public void sellEntityItem(int item_id,int status) {
-        ItemTimeline itemTimeline = new ItemTimeline();
-        DateTimeUtils dateTimeUtils = new DateTimeUtils();
-        itemTimeline.setItemId(item_id);
-        itemTimeline.setStatus("S");
-        itemTimeline.setTimestamp(dateTimeUtils.getTimeLong()); //时间itemTimeline2.setStatus("S");
-        switch (status) {
-            case 1:{
-                ItemSell itemSellInDB = itemSellDAO.findByItemId(item_id);
-                itemSellInDB.setStatus("N2"); //等待发货
-                itemSellDAO.save(itemSellInDB);
-                itemTimeline.setContent("买家已付款，请尽快发货");break;
-            }
-            case 2:
-                itemTimeline.setContent("已发货至平台");break;
-            case 3:
-                itemTimeline.setContent("平台已收货，等待平台审核");break;
-            case 4:
-                itemTimeline.setContent("平台审核通过");
-                itemTimeline.setIcon("el-icon-check");
-                itemTimeline.setType("success");break;
-            case 5:
-                itemTimeline.setContent("平台审核未通过，卡片已退回，请注意查收");
-                itemTimeline.setIcon("el-icon-close");
-                itemTimeline.setType("danger");break;
+    public boolean buyerPayEntity(int item_id) {
+        try {
+            ItemSell itemSellInDB = itemSellDAO.findByItemId(item_id);
+            itemSellInDB.setStatus("N2"); //等待发货
+            itemSellDAO.save(itemSellInDB);
+            itemTimelineService.sellEntityItem(item_id,1);
+        } catch (IllegalArgumentException e) {
+            return false;
         }
-        itemTimelineDAO.save(itemTimeline);
-
+        return true;
     }
 
     public boolean sellEntityItemBack(ItemSell itemSell) {
         try {
             ItemSell itemSellInDB = itemSellDAO.findByItemId(itemSell.getItemId());
-            ItemTimeline itemTimeline = new ItemTimeline();
-            DateTimeUtils dateTimeUtils = new DateTimeUtils();
-            itemTimeline.setItemId(itemSell.getItemId());
-            itemTimeline.setStatus("S");
-            itemTimeline.setTimestamp(dateTimeUtils.getTimeLong()); //时间itemTimeline2.setStatus("S");
-            itemTimeline.setContent("卖家确认退回收货");
-            itemTimeline.setIcon("el-icon-more");
-            itemTimeline.setType("primary");
             itemSellInDB.setStatus("F2");//卖家确认收货
-            itemTimelineDAO.save(itemTimeline);
             itemSellDAO.save(itemSellInDB);
+            itemTimelineService.sellEntityItem(itemSell.getItemId(),8);
         } catch (IllegalArgumentException e) {
             return false;
         }
@@ -151,8 +115,8 @@ public class ItemSellService {
             itemSellInDB.setCardNum(itemSell.getCardNum());
             itemSellInDB.setStatus("N3"); //已发货
             itemSellDAO.save(itemSellInDB);
-            sellEntityItem(itemSell.getItemId(),2);
-            itemBuyService.buyEntityItem(itemSell.getItemId(),2);
+            itemTimelineService.sellEntityItem(itemSell.getItemId(),2);
+            itemTimelineService.buyEntityItem(itemSell.getItemId(),2);
         } catch (IllegalArgumentException e) {
             return false;
         }
@@ -191,13 +155,12 @@ public class ItemSellService {
         ItemSell itemSellInDB = itemSellDAO.findByItemId(itemCheck.getItemId());
         ItemStock itemStock = new ItemStock();
         DateTimeUtils dateTimeUtils = new DateTimeUtils();
-        ItemTimeline itemTimeline = new ItemTimeline();
         if (itemSellInDB.isEntity()) { //实体卡
             itemSellInDB.setStatus("N1");
-            itemTimeline.setContent("信息审核通过，已上架平台");
+            itemTimelineService.sellEntityItem(itemCheck.getItemId(),6);
         } else { //电子卡
             itemSellInDB.setStatus("T");
-            itemTimeline.setContent("系统审核通过");
+            itemTimelineService.sellEntityItem(itemCheck.getItemId(),7);
             itemStock.setCardNum(itemSellInDB.getCardNum());
             itemStock.setCardPass(passwordService.DES(itemSellInDB.getCardNum(), itemCheck.getNewPassword(), "encode"));
         }
@@ -211,15 +174,9 @@ public class ItemSellService {
         itemStock.setDueTime(itemSellInDB.getDueTime());
         itemStock.setPrice(Money.of(CurrencyUnit.of("CNY"), itemCheck.getPrice()));
         itemStock.setEntity(itemSellInDB.isEntity());
-        itemTimeline.setItemId(itemCheck.getItemId());
-        itemTimeline.setStatus("S");
-        itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
-        itemTimeline.setType("success");
-        itemTimeline.setIcon("el-icon-check");
         try {
             itemStockDAO.save(itemStock);
             itemSellDAO.save(itemSellInDB);
-            itemTimelineDAO.save(itemTimeline);
             if (!itemSellInDB.isEntity()) { //电子卡 转账
                 priceService.plus(itemSellInDB.getUserId(), itemCheck.getItemId(), itemCheck.getPrice(), itemSellInDB.getDiscountItem(), itemSellInDB.getDiscountTime());
             }
@@ -232,19 +189,12 @@ public class ItemSellService {
     public boolean checkFail(ItemCheck itemCheck) {
         DateTimeUtils dateTimeUtils = new DateTimeUtils();
         ItemSell itemSellInDB = itemSellDAO.findByItemId(itemCheck.getItemId());
-        ItemTimeline itemTimeline = new ItemTimeline();
         itemSellInDB.setStatus("F");
         itemSellInDB.setCheckTime(dateTimeUtils.getTimeLong());
         itemSellInDB.setManagerId(itemCheck.getManagerId());
-        itemTimeline.setItemId(itemCheck.getItemId());
-        itemTimeline.setStatus("S");
-        itemTimeline.setTimestamp(dateTimeUtils.getTimeLong());
-        itemTimeline.setContent("系统审核未通过");
-        itemTimeline.setType("danger");
-        itemTimeline.setIcon("el-icon-close");
         try {
             itemSellDAO.save(itemSellInDB);
-            itemTimelineService.addOrUpdate(itemTimeline);
+            itemTimelineService.sellEntityItem(itemCheck.getItemId(),11);
         } catch (IllegalArgumentException e) {
             return false;
         }
@@ -256,8 +206,8 @@ public class ItemSellService {
             ItemSell itemSellInDB = itemSellDAO.findByItemId(itemCheck.getItemId());
             itemSellInDB.setStatus("N4"); //已收货，等待审核
             itemSellDAO.save(itemSellInDB);
-            sellEntityItem(itemCheck.getItemId(),3);
-            itemBuyService.buyEntityItem(itemCheck.getItemId(),3);
+            itemTimelineService.sellEntityItem(itemCheck.getItemId(),3);
+            itemTimelineService.buyEntityItem(itemCheck.getItemId(),3);
         } catch (IllegalArgumentException e) {
             return false;
         }
@@ -272,8 +222,8 @@ public class ItemSellService {
             itemStockInDB.setCardNum(itemCheck.getExpressNumNew()); //新快递号存到stock中
             itemSellDAO.save(itemSellInDB);
             itemStockDAO.save(itemStockInDB);
-            sellEntityItem(itemCheck.getItemId(),4);
-            itemBuyService.buyEntityItem(itemCheck.getItemId(),4);
+            itemTimelineService.sellEntityItem(itemCheck.getItemId(),4);
+            itemTimelineService.buyEntityItem(itemCheck.getItemId(),4);
 
             priceService.plus(itemSellInDB.getUserId(), itemSellInDB.getItemId(), itemSellInDB.getPrice(), itemSellInDB.getDiscountItem(), itemSellInDB.getDiscountTime());
         } catch (IllegalArgumentException e) {
@@ -291,8 +241,8 @@ public class ItemSellService {
             itemSellInDB.setCardPass(itemCheck.getExpressNumNew());//新快递号存password中
             itemBuyDAO.save(itemBuyInDB);
             itemSellDAO.save(itemSellInDB);
-            sellEntityItem(itemCheck.getItemId(),5);
-            itemBuyService.buyEntityItem(itemCheck.getItemId(),6);
+            itemTimelineService.sellEntityItem(itemCheck.getItemId(),5);
+            itemTimelineService.buyEntityItem(itemCheck.getItemId(),6);
             //买家退款
             priceService.plus(itemBuyInDB.getUserId(), itemBuyInDB.getItemStock().getItemId(), itemBuyInDB.getPrice());
         } catch (IllegalArgumentException e) {
