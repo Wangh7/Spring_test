@@ -30,4 +30,16 @@ public class DiscountTimeService {
         }
         return true;
     }
+
+    public boolean addOrUpdate(DiscountTime discountTime) {
+        try {
+            DiscountTime discountTimeInDB = discountTimeDAO.findById(discountTime.getId());
+            discountTimeInDB.setDiscountSell(discountTime.getDiscountSell());
+            discountTimeInDB.setDiscountBuy(discountTime.getDiscountBuy());
+            discountTimeDAO.save(discountTimeInDB);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
+    }
 }

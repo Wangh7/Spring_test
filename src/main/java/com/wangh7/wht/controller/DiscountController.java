@@ -42,6 +42,16 @@ public class DiscountController {
     }
 
     @CrossOrigin
+    @PostMapping(value = "/api/discount/time")
+    public Result setTimeDiscount(@RequestBody DiscountTime discountTime) {
+        if(discountTimeService.addOrUpdate(discountTime)) {
+            return ResultFactory.buildSuccessResult("修改成功");
+        } else {
+            return ResultFactory.buildFailResult("修改失败");
+        }
+    }
+
+    @CrossOrigin
     @PutMapping(value = "/api/discount/time/status")
     public Result updateUserStatus(@RequestBody DiscountTime discountTime) {
         if(discountTimeService.discountTimeStatus(discountTime)) {
