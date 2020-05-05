@@ -36,6 +36,15 @@ public class DiscountController {
     }
 
     @CrossOrigin
+    @PostMapping(value = "/api/discount/type/delete")
+    public Result deleteItemDiscount(@RequestBody ItemType itemType) {
+        if(itemTypeService.deleteItemDiscount(itemType)){
+            return ResultFactory.buildSuccessResult("删除成功");
+        } else {
+            return ResultFactory.buildFailResult("删除失败");
+        }
+    }
+    @CrossOrigin
     @GetMapping(value = "/api/discount/time")
     public List<DiscountTime> discountTimeList() {
         return discountTimeService.list();

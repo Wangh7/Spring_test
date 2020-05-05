@@ -5,6 +5,7 @@ import com.wangh7.wht.pojo.ItemType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,6 +27,16 @@ public class ItemTypeService {
     public boolean setItemDiscount(ItemType itemType) {
         try {
             itemTypeDAO.save(itemType);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
+    }
+
+    @Transactional
+    public boolean deleteItemDiscount(ItemType itemType) {
+        try {
+            itemTypeDAO.deleteById(itemType.getTypeId());
         } catch (IllegalArgumentException e) {
             return false;
         }
